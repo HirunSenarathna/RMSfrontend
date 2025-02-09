@@ -1,11 +1,10 @@
 import { Component , ElementRef, ViewChild} from '@angular/core';
-import { HeaderComponent } from "../../components/header/header.component";
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeaderComponent, CommonModule],
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -20,7 +19,7 @@ export class HomeComponent {
   ];
 
   menuItems = [
-    { image: 'assets/drinks1.jpg', title: 'Drinks', buttonText: 'Shop Now' },
+    { image: 'assets/drinks2.jpg', title: 'Drinks', buttonText: 'Shop Now' },
     { image: 'assets/rnc2.jpg', title: 'Rice & Curry', buttonText: 'Shop Now' },
     { image: 'assets/sides1.jpg', title: 'Sides', buttonText: 'Shop Now' },
     { image: 'assets/desserts1.jpg', title: 'Desserts', buttonText: 'Shop Now' },
@@ -29,6 +28,7 @@ export class HomeComponent {
 
   currentSlide = 0;
   interval: any;
+  menuScrollInterval: any;
 
 
 
@@ -52,6 +52,26 @@ export class HomeComponent {
 
   stopAutoSlide() {
     clearInterval(this.interval);
+  }
+
+    // Auto-scroll for the Menu Section
+    startAutoScrollMenu() {
+      this.menuScrollInterval = setInterval(() => {
+        if (this.menuContainer) {
+          const container = this.menuContainer.nativeElement;
+          const scrollAmount = 300; // Adjust as needed
+          if (container.scrollLeft + container.clientWidth >= container.scrollWidth) {
+            container.scrollTo({ left: 0, behavior: 'smooth' }); // Reset to start
+          } else {
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+          }
+        }
+      }, 3000); // Auto-scroll every 3 seconds
+    }
+
+
+  stopAutoScrollMenu() {
+    clearInterval(this.menuScrollInterval);
   }
 
 
