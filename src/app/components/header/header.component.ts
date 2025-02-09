@@ -1,4 +1,4 @@
-import { Component,OnInit } from '@angular/core';
+import { Component,HostListener } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 
 interface CartItem {
@@ -18,8 +18,16 @@ interface CartItem {
 })
 
 export class HeaderComponent {
+  isScrolled = false;
   isMenuOpen: boolean = false;
   isSticky: boolean = false;
+
+
+  @HostListener("window:scroll", [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 50;
+  }
+
   menuItems: { label: string, url: string }[] = [
     { label: 'Rice & Curry', url: '/product-category/rice-curry' },
     { label: 'Drinks', url: '/product-category/drinks' },

@@ -1,9 +1,17 @@
-<header>
+<header [class.scrolled]="isScrolled">
   <nav>
-    <ul>
+    <ul class="center-menu">
       <li><a href="/">Home</a></li>
-      <li><a href="/menu">Menu</a></li>
-      <li><a href="/contact">Contact</a></li>
-    </ul>
+      <li><a href="/Rice&Curry">Rice & Curry</a></li>
+      <li><a href="/Kotthu">Kotthu</a></li>
+      <li><a href="/Biriyani">Biriyani</a></li>
+      <li><a href="/FriedRice">Fried Rice</a></li>
+      <li><a href="/Desserts">Desserts</a></li>
+      <li><a href="/Drinks">Drinks</a></li>
+    </ul>  
+      <ul class="right-menu">
+        <li><a id="profile" href="/profile"><span class="material-icons">account_circle</span></a></li>
+        <li><a href="/cart"><span class="material-icons">shopping_cart</span></a></li>        
+      </ul>
   </nav>
 </header>
