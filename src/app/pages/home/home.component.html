@@ -1,0 +1,41 @@
+<app-header></app-header>
+
+<section class="carousel">
+  <div class="slides-container">
+    <div *ngFor="let slide of slides; let i = index" 
+         class="slide" 
+         [class.active]="i === currentSlide">
+      <img [src]="slide.image" [alt]="slide.text">
+      <div class="content">
+        <h2>{{ slide.title }}</h2>
+        <p>{{ slide.text }}</p>
+        <button>{{ slide.buttonText }}</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="prev" (click)="prevSlide()">&#10094;</button>
+  <button class="next" (click)="nextSlide()">&#10095;</button>
+</section>
+
+<section class="menu-section">
+  <h2>Discover Our Menu</h2>
+
+  <div class="menu-carousel">
+    <button class="prev" (click)="scrollMenu(-1)">&#10094;</button>
+
+    <div class="menu-slides-container" #menuContainer>
+      <div *ngFor="let item of menuItems" class="menu-slide">
+        <img [src]="item.image" [alt]="item.title">
+        <div class="overlay">
+          <h3>{{ item.title }}</h3>
+          <button>{{ item.buttonText }}</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="next" (click)="scrollMenu(1)">&#10095;</button>
+  </div>
+</section>
+
+

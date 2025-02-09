@@ -1,0 +1,201 @@
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.slides-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.slide.active {
+  opacity: 1;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+  color: white;
+  max-width: 600px;
+}
+
+.content h2 {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.content p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+.content button {
+  background: white;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.content button:hover {
+  background: #f0a500;
+  color: white;
+}
+
+button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 15px;
+  font-size: 24px;
+}
+
+button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.prev {
+  left: 20px;
+}
+
+.next {
+  right: 20px;
+}
+
+
+/* menu */
+.menu-section {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.menu-section h2 {
+  font-size: 2em;
+  margin-bottom: 30px;
+}
+
+/* Carousel Container */
+.menu-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+/* Slides Wrapper */
+.menu-slides-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 20px;
+  padding: 10px;
+  scrollbar-width: none; /* Hide scrollbar for better UX */
+}
+
+/* Hide scrollbar (for Webkit browsers like Chrome, Safari) */
+.menu-slides-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual Slide (Card) */
+.menu-slide {
+  min-width: 250px;
+  max-width: 250px;
+  position: relative;
+  text-align: center;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: 0 0 auto; /* Keeps slides from shrinking */
+  transition: transform 0.3s;
+}
+
+.menu-slide:hover {
+  transform: scale(1.05);
+}
+
+.menu-slide img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Overlay Styling */
+.overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+.overlay h3 {
+  font-size: 1.2em;
+  margin: 0 0 10px;
+}
+
+.overlay button {
+  background: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.overlay button:hover {
+  background: #f8d210;
+}
+
+/* Navigation Buttons */
+button {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 20px;
+  z-index: 10;
+}
+
+.prev {
+  left: 0;
+}
+
+.next {
+  right: 0;
+}
+
+button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
