@@ -19,6 +19,11 @@ header.scrolled {
   color: white; /* White text */
 }
 
+/* For homepage - white background */
+body.home header {
+  background: white;
+  color: black;
+}
 /* Ensure links and icons inherit color */
 header a {
   text-decoration: none;

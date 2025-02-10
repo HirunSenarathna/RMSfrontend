@@ -1,5 +1,7 @@
 import { Component,HostListener } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 interface CartItem {
   name: string;
@@ -21,6 +23,7 @@ export class HeaderComponent {
   isScrolled = false;
   isMenuOpen: boolean = false;
   isSticky: boolean = false;
+  isHomePage: boolean = false;  // Flag to detect homepage
 
 
   @HostListener("window:scroll", [])
@@ -43,14 +46,23 @@ export class HeaderComponent {
     return this.cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
   }
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
+    // Detect if we are on the homepage
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.isHomePage = this.router.url === '/';  // Check if we are on the homepage
+    });
+
     // Implement sticky effect based on scroll
     window.onscroll = () => {
       this.isSticky = window.scrollY > 100;
     };
   }
+
+
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
