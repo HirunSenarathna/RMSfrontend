@@ -5,7 +5,6 @@ header {
   top: 0;
   left: 0;
   width: 100%;
-  background: transparent; /* No background initially */
   color: white; /* White text when not scrolled */
   font-family: 'Times New Roman', Times, serif;
   padding: 10px 10px; /* Padding of 10px on top and bottom, 100px on left and right */
@@ -19,11 +18,14 @@ header.scrolled {
   color: white; /* White text */
 }
 
-/* For homepage - white background */
-body.home header {
-  background: white;
-  color: black;
+
+/* Black Header for Other Pages */
+header:not(.home) {
+  background: black;
+  color: white;
 }
+
+
 /* Ensure links and icons inherit color */
 header a {
   text-decoration: none;
