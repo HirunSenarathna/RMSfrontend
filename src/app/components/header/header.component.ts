@@ -1,7 +1,7 @@
 import { Component,HostListener } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+
 
 interface CartItem {
   name: string;
@@ -20,16 +20,12 @@ interface CartItem {
 })
 
 export class HeaderComponent {
+
   isScrolled = false;
   isMenuOpen: boolean = false;
   isSticky: boolean = false;
-  isHomePage: boolean = false;  // Flag to detect homepage
+  isHomePage = false;  // Track if it's home page
 
-
-  @HostListener("window:scroll", [])
-  onWindowScroll() {
-    this.isScrolled = window.scrollY > 50;
-  }
 
   menuItems: { label: string, url: string }[] = [
     { label: 'Rice & Curry', url: '/product-category/rice-curry' },
@@ -46,22 +42,20 @@ export class HeaderComponent {
     return this.cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
   }
 
-  constructor(private router: Router) {}
-
-  ngOnInit() {
-    // Detect if we are on the homepage
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.isHomePage = this.router.url === '/';  // Check if we are on the homepage
+  constructor(private router: Router) {
+    // Listen for route changes
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.isHomePage = event.url === '/';
+        console.log('isHomePage', this.isHomePage);
+      }
     });
-
-    // Implement sticky effect based on scroll
-    window.onscroll = () => {
-      this.isSticky = window.scrollY > 100;
-    };
   }
 
+  @HostListener("window:scroll", [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 50;
+  }
 
 
   toggleMenu() {
