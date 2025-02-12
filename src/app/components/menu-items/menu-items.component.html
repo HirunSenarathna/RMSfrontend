@@ -1,12 +1,13 @@
-<p>menu-items works!</p>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+<section>
+  <div *ngFor="let product of products" class="product-card">
+    <img [src]="product.image" alt="{{ product.name }}">
+    <h3>{{ product.name }}</h3>
+    <p>
+      <span *ngIf="product.salePrice; else regularPrice">${{ product.salePrice }}</span>
+      <ng-template #regularPrice>
+        <span>${{ product.price }}</span>
+      </ng-template>
+    </p>
+    <button (click)="addToCart(product)">Add to cart</button>
+  </div>
+</section>
