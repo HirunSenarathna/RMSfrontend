@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { MenuItemsComponent } from './menu-items/menu-items.component';
+import { LoginComponent } from './login/login.component';
 
 
 
@@ -10,7 +11,8 @@ import { MenuItemsComponent } from './menu-items/menu-items.component';
   imports: [
     CommonModule,
     HeaderComponent,
-    MenuItemsComponent
+    MenuItemsComponent,
+    LoginComponent
   ]
 })
 export class ComponentsModule { }
