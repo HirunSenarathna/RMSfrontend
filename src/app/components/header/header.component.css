@@ -92,3 +92,67 @@ a:hover {
 #profile{
   margin-right: 10px;
 }
+
+/* MENU ICON for Mobile */
+.menu-icon {
+  display: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+}
+
+/* Mobile Menu Styles */
+@media (max-width: 768px) {
+  /* Show Menu Icon */
+  .menu-icon {
+    display: block;
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    z-index: 2000;
+  }
+
+  /* Mobile Dropdown Menu */
+  .center-menu {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50px; /* Positioned just below the header */
+    left: 0;
+    width: 250px; /* Set a fixed width for the menu */
+    height: auto; /* Don't take the full height */
+    background: rgba(0, 0, 0, 0.9); /* Semi-transparent black background */
+    padding: 15px;
+    border-radius: 5px;
+    transform: translateX(-110%); /* Initially hide the menu */
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* Show Menu When Open */
+  .center-menu.show {
+    transform: translateX(0); /* Slide the menu into view */
+  }
+
+  /* Style Links */
+  .center-menu a {
+    font-size: 18px;
+    color: white;
+    display: block;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .center-menu a:hover {
+    color: #ff5622b7;
+  }
+
+  /* Remove last border */
+  .center-menu a:last-child {
+    border-bottom: none;
+  }
+
+  /* Adjust Right Menu */
+  .right-menu {
+    margin-left: auto;
+  }
+}

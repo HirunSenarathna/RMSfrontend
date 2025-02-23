@@ -12,6 +12,10 @@ export class CheckoutComponent {
 
   constructor(public orderService: OrderService) {}
 
+  removeItem(index: number) {
+    this.orderService.removeFromCart(index);
+  }
+
   placeOrder() {
     alert('Order placed successfully!');
   }

@@ -25,7 +25,8 @@
     <div class="sidebar">
       <div class="order-summary">
         <h2>Your Order</h2>
-        <div *ngFor="let item of orderService.orderItems" class="order-item">
+        <div *ngFor="let item of orderService.orderItems; let i = index" class="order-item">
+          <button class="remove-btn" (click)="removeItem(i)">✖</button>
           <img [src]="item.img" alt="{{ item.name }}">
           <div class="item-details">
             <p>{{ item.name }} x{{ item.quantity }}</p>

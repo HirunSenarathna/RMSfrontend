@@ -20,6 +20,10 @@ export class OrderService {
     return 15.00;
   }
 
+  removeFromCart(index: number) {
+    this.orderItems.splice(index, 1);
+  }
+
   getTotal(): number {
     return this.getSubtotal() + this.getShippingCost();
   }
