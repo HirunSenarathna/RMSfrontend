@@ -1,13 +1,18 @@
-<section>
-  <div *ngFor="let product of products" class="product-card">
-    <img [src]="product.image" alt="{{ product.name }}">
-    <h3>{{ product.name }}</h3>
-    <p>
-      <span *ngIf="product.salePrice; else regularPrice">${{ product.salePrice }}</span>
-      <ng-template #regularPrice>
-        <span>${{ product.price }}</span>
-      </ng-template>
-    </p>
-    <button (click)="addToCart(product)">Add to cart</button>
-  </div>
-</section>
+<div class="menu-card">
+  <div class="sale-badge" *ngIf="item.sale">Sale</div>
+  <img [src]="item.image" alt="{{ item.name }}" class="menu-image">
+  <h3>{{ item.name }}</h3>
+  <p>
+    <span *ngIf="item.sale" class="old-price">${{ item.oldPrice }}</span>
+    <span class="price">${{ item.price }}</span>
+  </p>
+  <mat-form-field appearance="outline" class="rating">
+    <mat-label>Rating</mat-label>
+    <mat-select [(value)]="item.rating">
+      <mat-option *ngFor="let star of [1, 2, 3, 4, 5]" [value]="star">
+        {{ star }} ★
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button class="add-to-cart">Add to cart</button>
+</div>

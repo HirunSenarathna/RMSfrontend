@@ -1,0 +1,61 @@
+<div class="cart-container">
+    <h1>Cart</h1>
+    
+    <div class="cart-content">
+      <!-- Left Section: Cart Items -->
+      <div class="cart-items">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of cartItems; let i = index">
+              <td>
+                <button class="remove-btn" (click)="removeItem(i)">×</button>
+                <img [src]="item.image" alt="{{ item.name }}">
+                <span>{{ item.name }}</span>
+              </td>
+              <td>${{ item.price.toFixed(2) }}</td>
+              <td>
+                <button (click)="decreaseQuantity(item)">-</button>
+                <input type="text" [value]="item.quantity" readonly>
+                <button (click)="increaseQuantity(item)">+</button>
+              </td>
+              <td>${{ (item.price * item.quantity).toFixed(2) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- Right Section: Cart Totals -->
+      <div class="cart-totals">
+        <h2>Cart Totals</h2>
+        <div class="totals-row">
+          <span>Subtotal</span>
+          <span>${{ subtotal.toFixed(2) }}</span>
+        </div>
+        <div class="totals-row">
+          <span>Shipping</span>
+          <span>Flat Rate: ${{ shippingRate.toFixed(2) }}</span>
+        </div>
+        <div class="totals-row">
+          <span>Shipping to <strong>CA</strong></span>
+          <span><a href="#">Change address</a></span>
+        </div>
+        <div class="totals-row total">
+          <span>Total</span>
+          <span>${{ total.toFixed(2) }}</span>
+        </div>
+        <button class="checkout-btn"><a href="/checkout">Proceed to Checkout</a></button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  

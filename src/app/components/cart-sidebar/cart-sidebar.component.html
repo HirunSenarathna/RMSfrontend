@@ -1,0 +1,23 @@
+<div class="cart-sidebar" [class.open]="isCartOpen">
+  <button class="close-btn" (click)="toggleCart()">✖</button>
+
+  <ul class="cart-items">
+      <li *ngFor="let item of cartItems; let i = index" class="cart-item">
+          <img [src]="item.image" alt="{{ item.name }}" class="img"/>
+          <div class="item-info">
+              <p class="item-name">{{ item.name }}</p>
+              <p class="item-price">1 × {{ item.price | currency }}</p>
+          </div>
+          <button class="remove-btn" (click)="removeItem(i)">✖</button>
+      </li>
+  </ul>
+
+  <p class="subtotal"><strong>Subtotal:</strong> {{ getTotal() | currency }}</p>
+
+  <div class="cart-buttons">
+      <button class="cart-btn"><a href="/cart">View Cart</a></button>
+      <button class="cart-btn"><a href="/checkout">Checkout</a> </button>
+  </div>
+</div>
+
+<div class="overlay" *ngIf="isCartOpen" (click)="toggleCart()"></div>
