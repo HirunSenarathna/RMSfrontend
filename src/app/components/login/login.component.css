@@ -6,16 +6,16 @@ body {
 	align-items: center;
 	min-height: 100vh;
 	font-family: 'Jost', sans-serif;
-	background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+	background: url("/assets/image3.jpg") no-repeat center/cover;
 }
 
 .main {
 	width: 350px;
 	height: 550px;
 	overflow: hidden;
-	background: url("https://source.unsplash.com/random") no-repeat center/cover;
+	background: #00000082;
 	border-radius: 10px;
-	box-shadow: 5px 20px 50px #000;
+	box-shadow: 100px 20px 500px #000;
 }
 
 #chk {
