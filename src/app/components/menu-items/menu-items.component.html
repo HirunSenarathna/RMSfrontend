@@ -6,13 +6,14 @@
     <span *ngIf="item.sale" class="old-price">${{ item.oldPrice }}</span>
     <span class="price">${{ item.price }}</span>
   </p>
-  <mat-form-field appearance="outline" class="rating">
-    <mat-label>Rating</mat-label>
-    <mat-select [(value)]="item.rating">
-      <mat-option *ngFor="let star of [1, 2, 3, 4, 5]" [value]="star">
-        {{ star }} ★
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+
+  <div class="star-rating">
+    <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+          [class.selected]="star <= item.rating" 
+          (click)="rate(star)">
+      &#9733;
+    </span>
+  </div>
+  
   <button class="add-to-cart">Add to cart</button>
 </div>
