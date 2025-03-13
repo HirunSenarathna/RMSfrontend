@@ -1,3 +1,24 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
-<app-footer></app-footer>
+<ng-container *ngIf="isOwnerPage(); else customerLayout">
+    <!-- Owner Layout -->
+    <div class="container">
+      <div class="header">
+        <app-owner-navbar></app-owner-navbar>
+      </div>
+      <div class="main-container">
+        <div class="side-nav">
+          <app-owner-sidebar></app-owner-sidebar>
+        </div>
+        <div class="main">
+          <app-owner-dashboard></app-owner-dashboard>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  
+  <!-- Customer Layout -->
+  <ng-template #customerLayout>
+    <app-header></app-header>
+    <router-outlet></router-outlet>
+    <app-footer></app-footer>
+  </ng-template>
+  

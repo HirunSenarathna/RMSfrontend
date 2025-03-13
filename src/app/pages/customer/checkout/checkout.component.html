@@ -7,16 +7,15 @@
           <input type="text" placeholder="First Name">
           <input type="text" placeholder="Last Name">
         </div>
-        <input type="text" placeholder="Company Name">
         <select>
-          <option>United States (US)</option>
+          <option>Colombo</option>
         </select>
         <input type="text" placeholder="House number and street name">
-        <input type="text" placeholder="California">
+        <input type="text" placeholder="Colombo">
         <input type="text" placeholder="Phone">
         <input type="email" placeholder="Email Address">
         <label>
-          <input type="checkbox"> Ship to a different address?
+          <input type="checkbox"> Deliver to a different address?
         </label>
       </form>
     </div>
@@ -34,7 +33,7 @@
           </div>
         </div>
         <p>Subtotal: <strong>${{ orderService.getSubtotal().toFixed(2) }}</strong></p>
-        <p>Shipping: <strong>${{ orderService.getShippingCost().toFixed(2) }}</strong></p>
+        <p>Discount: <strong>${{ orderService.getShippingCost().toFixed(2) }}</strong></p>
         <h3>Total: ${{ orderService.getTotal().toFixed(2) }}</h3>
       </div>
   
