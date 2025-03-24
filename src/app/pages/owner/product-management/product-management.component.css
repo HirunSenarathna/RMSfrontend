@@ -1,0 +1,10 @@
+.p-dialog .product-image {
+  width: 150px;
+  margin: 0 auto 2rem auto;
+  display: block;
+}
+
+.p-iconfield {
+  margin-left: auto;
+ margin-right: 10px;
+}

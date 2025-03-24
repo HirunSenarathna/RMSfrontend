@@ -36,7 +36,7 @@ export class SalesByMonthComponent {
     },
     yAxis: {
       title: {
-        text: 'Revenue in $'
+        text: 'Revenue in Rs.'
       }
     },
     series: [

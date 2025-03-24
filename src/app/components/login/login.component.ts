@@ -7,6 +7,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 
+
+import { AuthService } from '../../services/auth.service';
+
 @Component({
   selector: 'app-login',
   imports: [CommonModule,
@@ -20,7 +23,22 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class LoginComponent {
 
-  constructor(private router: Router) {}
+  user = { firstName: '', lastName: '', address: '', email: '', phone: '', password: '' };
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  register() {
+    this.authService.register(this.user).subscribe({
+      next: (response) => {
+        
+        console.log('Registration successful:', response);
+        this.router.navigate(['/login']); 
+      },
+      error: (error) => {
+        console.error('Registration failed:', error);
+      }
+    });
+  }
 
   loginWithGoogle() {
     // Implement Google Authentication logic here
