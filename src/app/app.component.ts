@@ -6,11 +6,10 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OwnerNavbarComponent } from "./components/owner/owner-navbar/owner-navbar.component";
 import { OwnerSidebarComponent } from "./components/owner/owner-sidebar/owner-sidebar.component";
-import { OwnerDashboardComponent } from "./pages/owner/owner-dashboard/owner-dashboard.component";
 
 @Component({
   selector: 'app-root',
-  imports: [HeaderComponent, RouterOutlet, FooterComponent, CommonModule, OwnerNavbarComponent, OwnerSidebarComponent, OwnerDashboardComponent],
+  imports: [HeaderComponent, RouterOutlet, FooterComponent, CommonModule, OwnerNavbarComponent, OwnerSidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -20,12 +19,11 @@ export class AppComponent {
   constructor(private router: Router) {}
 
   isOwnerPage(): boolean {
-    // Check if the current route starts with '/owner'
+     // Check if the current route starts with '/owner'
     return this.router.url.startsWith('/owner');
   }
 
   isCustomerPage(): boolean {
-    // Check if the current route starts with '/customer'
-    return this.router.url.startsWith('');
+    return !this.router.url.startsWith('/owner'); 
   }
 }

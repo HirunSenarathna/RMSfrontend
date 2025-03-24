@@ -1,0 +1,155 @@
+<div class="card">
+    <p-toast></p-toast>
+    <p-toolbar styleClass="mb-6">
+        <ng-template #start>
+            <p-button label="New" icon="pi pi-plus" class="mr-2" (click)="openNew()" />
+            <p-button severity="danger" label="Delete" icon="pi pi-trash" outlined (click)="deleteSelectedEmployees()" 
+                      [disabled]="!selectedEmployees || !selectedEmployees.length" />
+        </ng-template>
+
+        <ng-template #end>
+            <p-button label="Export" icon="pi pi-upload" severity="secondary" (click)="exportCSV()" />
+        </ng-template>
+    </p-toolbar>
+
+    <p-table
+        #dt
+        [value]="employees"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'jobTitle', 'department', 'email', 'phone', 'status']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="selectedEmployees"
+        [rowHover]="true"
+        dataKey="employeeId"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+    >
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Manage Employees</h5>
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                    <input #searchInput pInputText type="text" (input)="dt.filterGlobal(searchInput.value, 'contains')" placeholder="Search..." />
+                </p-iconfield>
+            </div>
+        </ng-template>
+
+        <ng-template #header>
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th style="min-width: 12rem">Profile Picture</th>
+                <th pSortableColumn="employeeId" style="min-width: 12rem">
+                    Employee ID
+                    <p-sortIcon field="employeeId"></p-sortIcon>
+                </th>
+                <th pSortableColumn="name" style="min-width: 16rem">
+                    Name
+                    <p-sortIcon field="name"></p-sortIcon>
+                </th>
+                <th pSortableColumn="jobTitle" style="min-width: 12rem">
+                    Job Title
+                    <p-sortIcon field="jobTitle"></p-sortIcon>
+                </th>
+                <th pSortableColumn="department" style="min-width: 12rem">
+                    Department
+                    <p-sortIcon field="department"></p-sortIcon>
+                </th>
+                <th pSortableColumn="email" style="min-width: 16rem">
+                    Email
+                    <p-sortIcon field="email"></p-sortIcon>
+                </th>
+                <th pSortableColumn="phone" style="min-width: 12rem">
+                    Phone
+                    <p-sortIcon field="phone"></p-sortIcon>
+                </th>
+                <th pSortableColumn="status" style="min-width: 10rem">
+                    Status
+                    <p-sortIcon field="status"></p-sortIcon>
+                </th>
+                <th style="min-width: 10rem"></th>
+            </tr>
+        </ng-template>
+
+        <ng-template #body let-employee>
+            <tr>
+                <td style="width: 3rem">
+                    <p-tableCheckbox [value]="employee"></p-tableCheckbox>
+                </td>
+                <td>
+                    <img *ngIf="employee.profilePicture" [src]="employee.profilePicture" [alt]="employee.name" style="width: 64px; border-radius: 50%;" />
+                </td>
+                <td>{{ employee.employeeId }}</td>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.jobTitle }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.phone }}</td>
+                <td>
+                    <p-tag [value]="employee.status" [severity]="getSeverity(employee.status)"></p-tag>
+                </td>
+                <td>
+                    <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editEmployee(employee)"></p-button>
+                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteEmployee(employee)"></p-button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template #summary>
+            <div class="flex items-center justify-between">In total there are {{ employees ? employees.length : 0 }} employees.</div>
+        </ng-template>
+    </p-table>
+
+    <p-dialog [(visible)]="employeeDialog" [style]="{ width: '450px' }" header="Employee Details" [modal]="true">
+        <ng-template #content>
+            <div class="flex flex-col gap-6">
+                <img *ngIf="employee.profilePicture" [src]="employee.profilePicture" [alt]="employee.name" class="block m-auto pb-4" />
+
+                <div>
+                    <label for="name" class="block font-bold mb-3">Name</label>
+                    <input type="text" pInputText id="name" [(ngModel)]="employee.name" required autofocus fluid />
+                    <small class="text-red-500" *ngIf="submitted && !employee.name">Name is required.</small>
+                </div>
+
+                <div>
+                    <label for="jobTitle" class="block font-bold mb-3">Job Title</label>
+                    <input type="text" pInputText id="jobTitle" [(ngModel)]="employee.jobTitle" required />
+                </div>
+
+                <div>
+                    <label for="department" class="block font-bold mb-3">Department</label>
+                    <input type="text" pInputText id="department" [(ngModel)]="employee.department" required />
+                </div>
+
+                <div>
+                    <label for="email" class="block font-bold mb-3">Email</label>
+                    <input type="email" pInputText id="email" [(ngModel)]="employee.email" required />
+                </div>
+
+                <div>
+                    <label for="phone" class="block font-bold mb-3">Phone</label>
+                    <input type="text" pInputText id="phone" [(ngModel)]="employee.phone" required />
+                </div>
+
+                <div>
+                    <label for="address" class="block font-bold mb-3">Address</label>
+                    <textarea id="address" pTextarea [(ngModel)]="employee.address" rows="3" cols="20"></textarea>
+                </div>
+
+                <div>
+                    <label for="status" class="block font-bold mb-3">Status</label>
+                    <p-select [(ngModel)]="employee.status" inputId="status" [options]="statuses" optionLabel="label" placeholder="Select a Status"></p-select>
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template #footer>
+            <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()"></p-button>
+            <p-button label="Save" icon="pi pi-check" (click)="saveEmployee()"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+</div>

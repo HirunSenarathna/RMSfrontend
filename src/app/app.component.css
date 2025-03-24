@@ -3,7 +3,6 @@
   }
   
   .side-nav {
-    width: 350px;
     min-width: 230px;
     min-height: calc(100vh - 70px);
     background-color: #113c60;

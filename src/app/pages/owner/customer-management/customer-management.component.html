@@ -1,0 +1,74 @@
+<div class="card">
+    <p-toast />
+    <p-toolbar styleClass="mb-6">
+        <ng-template #start>
+            <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+        </ng-template>
+    </p-toolbar>
+
+    <p-table
+        #dt
+        [value]="customers"
+        [rows]="10"
+        [columns]="cols"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'email', 'phone', 'address']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="selectedCustomers"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+    >
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Manage Customers</h5>
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input #searchInput pInputText type="text" (input)="dt.filterGlobal(searchInput.value, 'contains')" placeholder="Search..." />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox />
+                </th>
+                <th style="min-width: 16rem">ID</th>
+                <th pSortableColumn="name" style="min-width:16rem">
+                    Name
+                    <p-sortIcon field="name" />
+                </th>
+                <th style="min-width: 12rem">Profile Picture</th>
+                <th style="min-width: 12rem">Email</th>
+                <th style="min-width: 12rem">Phone</th>
+                <th pSortableColumn="address" style="min-width: 12rem">Address
+                    <p-sortIcon field="address" />
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-customer>
+            <tr>
+                <td style="width: 3rem">
+                    <p-tableCheckbox [value]="customer" />
+                </td>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.name }}</td>
+                  <!-- Profile Picture column -->
+                <td style="min-width: 12rem">
+                   <img
+                        [src]="customer.profilePicture || 'assets/images/default-profile.jpg'"
+                        [alt]="customer.name"
+                        style="width: 50px; height: 50px; border-radius: 50%;"
+                    />
+      </td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.phone }}</td>
+                <td>{{ customer.address }}</td>
+            </tr>
+        </ng-template>
+        <ng-template #summary>
+            <div class="flex items-center justify-between">In total there are {{ customers ? customers.length : 0 }} customers.</div>
+        </ng-template>
+    </p-table>
+</div>
