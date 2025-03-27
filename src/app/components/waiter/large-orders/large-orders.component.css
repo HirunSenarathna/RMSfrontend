@@ -1,0 +1,77 @@
+.large-orders-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.large-orders-container .card {
+  padding: 1.5rem;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+}
+
+.order-details h4 {
+  margin-top: 0;
+  color: var(--primary-color);
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.order-details p {
+  margin-bottom: 0.75rem;
+}
+
+.order-details p strong {
+  display: inline-block;
+  width: 100px;
+}
+
+@media screen and (max-width: 960px) {
+  .p-datatable .p-datatable-thead > tr > th,
+  .p-datatable .p-datatable-tfoot > tr > td {
+    display: none !important;
+  }
+  .p-datatable .p-datatable-tbody > tr {
+    border-bottom: 1px solid var(--surface-d);
+  }
+  .p-datatable .p-datatable-tbody > tr > td {
+    display: flex;
+    width: 100% !important;
+    align-items: center;
+    border: 0 none;
+    padding: 0.5rem 1rem;
+  }
+  .p-datatable .p-datatable-tbody > tr > td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    width: 40%;
+    display: inline-block;
+  }
+  .p-datatable .p-datatable-tbody > tr > td:last-child {
+    justify-content: center;
+  }
+  .order-details .p-grid {
+    flex-direction: column;
+  }
+  .order-details .p-grid .p-col {
+    width: 100%;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .order-details,
+  .order-details * {
+    visibility: visible;
+  }
+  .order-details {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .p-dialog-footer {
+    display: none !important;
+  }
+}
