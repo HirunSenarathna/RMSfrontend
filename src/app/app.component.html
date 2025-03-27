@@ -1,12 +1,31 @@
-<ng-container *ngIf="isOwnerPage(); else customerLayout">
-    <!-- Owner Layout -->
+<ng-container *ngIf="isOwnerPage(); else otherLayouts">
+  <!-- Owner Layout -->
+  <div class="container">
+    <div class="header">
+      <app-owner-navbar></app-owner-navbar>
+    </div>
+    <div class="main-container">
+      <div class="side-nav">
+        <app-owner-sidebar></app-owner-sidebar>
+      </div>
+      <div class="main">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Other Layouts -->
+<ng-template #otherLayouts>
+  <ng-container *ngIf="isWaiterPage(); else cashierLayout">
+    <!-- Waiter Layout -->
     <div class="container">
       <div class="header">
-        <app-owner-navbar></app-owner-navbar>
+        <app-waiter-navbar></app-waiter-navbar>
       </div>
       <div class="main-container">
         <div class="side-nav">
-          <app-owner-sidebar></app-owner-sidebar>
+          <app-waiter-sidebar></app-waiter-sidebar>
         </div>
         <div class="main">
           <router-outlet></router-outlet>
@@ -14,11 +33,30 @@
       </div>
     </div>
   </ng-container>
-  
+
+  <!-- Cashier Layout -->
+  <ng-template #cashierLayout>
+    <ng-container *ngIf="isCashierPage(); else customerLayout">
+      <div class="container">
+        <div class="header">
+          <!-- <app-cashier-navbar></app-cashier-navbar> -->
+        </div>
+        <div class="main-container">
+          <div class="side-nav">
+            <!-- <app-cashier-sidebar></app-cashier-sidebar> -->
+          </div>
+          <div class="main">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+
   <!-- Customer Layout -->
   <ng-template #customerLayout>
     <app-header></app-header>
     <router-outlet></router-outlet>
     <app-footer></app-footer>
   </ng-template>
-  
+</ng-template>

@@ -1,0 +1,93 @@
+<div class="card">
+  <p-toast />
+  <p-toolbar styleClass="mb-6">
+    <ng-template #end>
+      <p-button
+        label="Export"
+        icon="pi pi-upload"
+        severity="secondary"
+        (onClick)="exportCSV()"
+      />
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="orders"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [globalFilterFields]="['orderId', 'customer', 'itemName', 'status']"
+    [tableStyle]="{ 'min-width': '90rem' }"
+    [(selection)]="selectedOrder"
+    [rowHover]="true"
+    dataKey="orderId"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template #header>
+      <tr>
+        <th>Order ID</th>
+        <th>Order Date</th>
+        <th>Order Time</th>
+        <th>Customer</th>
+        <th>Payment Method</th>
+        <th>Item Name</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Total</th>
+        <th>Order Type</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-order>
+      <tr>
+        <td>{{ order.orderId }}</td>
+        <td>{{ order.orderDate }}</td>
+        <td>{{ order.orderTime }}</td>
+        <td>{{ order.customer }}</td>
+        <td>{{ order.paymentMethod }}</td>
+        <td>{{ order.itemName }}</td>
+        <td>{{ order.quantity }}</td>
+        <td>{{ order.unitPrice | currency : "Rs " }}</td>
+        <td>{{ order.total | currency : "Rs "}}</td>
+        <td>{{ order.orderType }}</td>
+        <td>
+           {{ order.status }}
+        </td>
+        <td>
+          <p-button
+            icon="pi pi-pencil"
+            class="mr-2"
+            (click)="editOrder(order)"
+          />
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            (click)="deleteOrder(order)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Status Update Dialog -->
+<p-dialog [(visible)]="orderDialog" [style]="{ width: '400px' }" header="Update Order Status" [modal]="true">
+  <ng-template #content>
+      <div class="flex flex-col gap-4">
+          <div>
+              <label for="status" class="block font-bold mb-3">Select Status</label>
+              <p-select [(ngModel)]="selectedOrder.status" inputId="status" [options]="statuses" optionLabel="label" placeholder="Select Status" />
+          </div>
+      </div>
+  </ng-template>
+
+  <ng-template #footer>
+      <p-button label="Cancel" icon="pi pi-times" text (click)="orderDialog = false" />
+      <p-button label="Update" icon="pi pi-check" (click)="saveOrderStatus()" />
+  </ng-template>
+</p-dialog>
+
+  <p-confirmDialog [style]="{ width: '450px' }" />
+</div>

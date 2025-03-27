@@ -1,0 +1,165 @@
+<div class="card">
+  <p-toast />
+  <p-toolbar styleClass="mb-6">
+    <ng-template #end>
+      <p-button
+        label="Export"
+        icon="pi pi-upload"
+        severity="secondary"
+        (onClick)="exportCSV()"
+      />
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="orders"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [globalFilterFields]="['orderId', 'status']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [rowHover]="true"
+    dataKey="orderId"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template #caption>
+      <div class="flex items-center justify-between">
+        <h5 class="m-0">Manage Orders</h5>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input
+            #searchInput
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal(searchInput.value, 'contains')"
+            placeholder="Search..."
+          />
+        </p-iconfield>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="orderId">
+          Order ID <p-sortIcon field="orderId" />
+        </th>
+        <th pSortableColumn="orderDate">
+          Order Date <p-sortIcon field="orderDate" />
+        </th>
+        <th pSortableColumn="orderTime">
+          Order Time <p-sortIcon field="orderTime" />
+        </th>
+        <th pSortableColumn="pickupDate">
+          Pickup Date <p-sortIcon field="pickupDate" />
+        </th>
+        <th pSortableColumn="pickupTime">
+          Pickup Time <p-sortIcon field="pickupTime" />
+        </th>
+        <th pSortableColumn="customer">
+          Customer <p-sortIcon field="customer" />
+        </th>
+        <th pSortableColumn="paymentMethod">
+          Payment Method <p-sortIcon field="paymentMethod" />
+        </th>
+        <th pSortableColumn="itemName">
+          Item Name <p-sortIcon field="itemName" />
+        </th>
+        <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
+        <th pSortableColumn="unitPrice">
+          Unit Price <p-sortIcon field="unitPrice" />
+        </th>
+        <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
+        <th pSortableColumn="server">Server <p-sortIcon field="server" /></th>
+        <th pSortableColumn="orderType">
+          Order Type <p-sortIcon field="orderType" />
+        </th>
+        <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+
+        <th style="min-width: 12rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-order>
+      <tr>
+        <td>{{ order.orderId }}</td>
+        <td>{{ order.orderDate }}</td>
+        <td>{{ order.orderTime }}</td>
+        <td>{{ order.pickupDate }}</td>
+        <td>{{ order.pickupTime }}</td>
+        <td>{{ order.customer }}</td>
+        <td>{{ order.paymentMethod }}</td>
+        <td>{{ order.itemName }}</td>
+        <td>{{ order.quantity }}</td>
+        <td>{{ order.unitPrice | currency : "Rs." }}</td>
+        <td>{{ order.total | currency : "Rs." }}</td>
+        <td>{{ order.server }}</td>
+        <td>{{ order.orderType }}</td>
+        <td>
+          <p-tag
+            [value]="order.status"
+            [severity]="getSeverity(order.status)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #summary>
+      <div class="flex items-center justify-between">
+        In total there are {{ orders ? orders.length : 0 }} orders.
+      </div>
+    </ng-template>
+  </p-table>
+
+  <p-dialog
+    [(visible)]="orderDialog"
+    [style]="{ width: '450px' }"
+    header="Order Details"
+    [modal]="true"
+  >
+    <ng-template #content>
+      <div class="flex flex-col gap-6">
+        <div>
+          <label for="orderId" class="block font-bold mb-3">Order ID</label>
+          <input
+            type="text"
+            pInputText
+            id="orderId"
+            [(ngModel)]="order.orderId"
+            required
+            readonly
+            fluid
+          />
+        </div>
+        <div>
+          <label for="totalAmount" class="block font-bold mb-3"
+            >Total Amount</label
+          >
+          <p-inputnumber
+            id="totalAmount"
+            [(ngModel)]="order.totalAmount"
+            mode="currency"
+            currency="Rs"
+            locale="en-US"
+            fluid
+          />
+        </div>
+        <div>
+          <label for="status" class="block font-bold mb-3">Status</label>
+          <p-select
+            [(ngModel)]="order.status"
+            inputId="status"
+            [options]="statuses"
+            optionLabel="label"
+            placeholder="Select Status"
+            fluid
+          />
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #footer>
+      <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+    </ng-template>
+  </p-dialog>
+
+  <p-confirmDialog [style]="{ width: '450px' }" />
+</div>
