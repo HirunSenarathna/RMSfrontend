@@ -15,6 +15,7 @@ import { SalesManagementComponent } from './pages/owner/sales-management/sales-m
 import { WaiterDashboardComponent } from './pages/waiter/waiter-dashboard/waiter-dashboard.component';
 import { WaiterProductManagementComponent } from './pages/waiter/waiter-product-management/waiter-product-management.component';
 import { WaiterOrderManagementComponent } from './pages/waiter/waiter-order-management/waiter-order-management.component';
+import { LargeOrdersComponent } from './components/waiter/large-orders/large-orders.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -30,6 +31,7 @@ export const routes: Routes = [
     // {path:'waiter',component:WaiterDashboardComponent},
     {path:'waiter',component:WaiterProductManagementComponent},
     {path:'waiter/WaiterOrderManagement',component:WaiterOrderManagementComponent},
+    {path:'waiter/LargeOrders',component:LargeOrdersComponent},
 
 
     {path:'Kotthu',component:KottuComponent},
