@@ -73,9 +73,9 @@
                 <td style="min-width: 12rem">{{ product.code }}</td>
                 <td style="min-width: 16rem">{{ product.name }}</td>
                 <td>
-                    <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.name" style="width: 64px" class="rounded" />
+                    <img [src]="'' + product.image" [alt]="product.name" style="width: 64px; height: 64px" class="rounded" />
                 </td>
-                <td>{{ product.price | currency: 'USD' }}</td>
+                <td>{{ product.price | currency: 'Rs ' }}</td>
                 <td>{{ product.category }}</td>
                 <td>
                     <p-rating [(ngModel)]="product.rating" [readonly]="true" />
@@ -97,7 +97,7 @@
     <p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Product Details" [modal]="true">
         <ng-template #content>
             <div class="flex flex-col gap-6">
-                <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.image" class="block m-auto pb-4" *ngIf="product.image" />
+                <img [src]="'' + product.image" [alt]="product.image" class="block m-auto pb-4" *ngIf="product.image" />
                 <div>
                     <label for="name" class="block font-bold mb-3">Name</label>
                     <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus fluid />
@@ -117,20 +117,20 @@
                     <span class="block font-bold mb-4">Category</span>
                     <div class="grid grid-cols-12 gap-4">
                         <div class="flex items-center gap-2 col-span-6">
-                            <p-radiobutton id="category1" name="category" value="Accessories" [(ngModel)]="product.category" />
-                            <label for="category1">Accessories</label>
+                            <p-radiobutton id="category1" name="category" value="Kottu" [(ngModel)]="product.category" />
+                            <label for="category1">Kottu</label>
                         </div>
                         <div class="flex items-center gap-2 col-span-6">
-                            <p-radiobutton id="category2" name="category" value="Clothing" [(ngModel)]="product.category" />
-                            <label for="category2">Clothing</label>
+                            <p-radiobutton id="category2" name="category" value="Rice & Curry" [(ngModel)]="product.category" />
+                            <label for="category2">Rice & Curry</label>
                         </div>
                         <div class="flex items-center gap-2 col-span-6">
-                            <p-radiobutton id="category3" name="category" value="Electronics" [(ngModel)]="product.category" />
-                            <label for="category3">Electronics</label>
+                            <p-radiobutton id="category3" name="category" value="Sides" [(ngModel)]="product.category" />
+                            <label for="category3">Sides</label>
                         </div>
                         <div class="flex items-center gap-2 col-span-6">
-                            <p-radiobutton id="category4" name="category" value="Fitness" [(ngModel)]="product.category" />
-                            <label for="category4">Fitness</label>
+                            <p-radiobutton id="category4" name="category" value="Drinks" [(ngModel)]="product.category" />
+                            <label for="category4">Drinks</label>
                         </div>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                 <div class="grid grid-cols-12 gap-4">
                     <div class="col-span-6">
                         <label for="price" class="block font-bold mb-3">Price</label>
-                        <p-inputnumber id="price" [(ngModel)]="product.price" mode="currency" currency="USD" locale="en-US" fluid />
+                        <p-inputnumber id="price" [(ngModel)]="product.price" mode="currency" currency="lkr" locale="en-US" fluid />
                     </div>
                     <div class="col-span-6">
                         <label for="quantity" class="block font-bold mb-3">Quantity</label>

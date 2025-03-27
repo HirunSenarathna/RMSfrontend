@@ -14,7 +14,6 @@
         [paginator]="true"
         [globalFilterFields]="['name', 'email', 'phone', 'address']"
         [tableStyle]="{ 'min-width': '75rem' }"
-        [(selection)]="selectedCustomers"
         [rowHover]="true"
         dataKey="id"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
@@ -31,9 +30,6 @@
         </ng-template>
         <ng-template #header>
             <tr>
-                <th style="width: 3rem">
-                    <p-tableHeaderCheckbox />
-                </th>
                 <th style="min-width: 16rem">ID</th>
                 <th pSortableColumn="name" style="min-width:16rem">
                     Name
@@ -49,12 +45,9 @@
         </ng-template>
         <ng-template #body let-customer>
             <tr>
-                <td style="width: 3rem">
-                    <p-tableCheckbox [value]="customer" />
-                </td>
                 <td>{{ customer.id }}</td>
                 <td>{{ customer.name }}</td>
-                  <!-- Profile Picture column -->
+                  
                 <td style="min-width: 12rem">
                    <img
                         [src]="customer.profilePicture || 'assets/images/default-profile.jpg'"

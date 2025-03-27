@@ -10,6 +10,11 @@ import { OwnerDashboardComponent } from './pages/owner/owner-dashboard/owner-das
 import { CustomerManagementComponent } from './pages/owner/customer-management/customer-management.component';
 import { EmployeeManagementComponent } from './pages/owner/employee-management/employee-management.component';
 import { ProductManagementComponent } from './pages/owner/product-management/product-management.component';
+import { OrderManagementComponent } from './pages/owner/order-management/order-management.component';
+import { SalesManagementComponent } from './pages/owner/sales-management/sales-management.component';
+import { WaiterDashboardComponent } from './pages/waiter/waiter-dashboard/waiter-dashboard.component';
+import { WaiterProductManagementComponent } from './pages/waiter/waiter-product-management/waiter-product-management.component';
+import { WaiterOrderManagementComponent } from './pages/waiter/waiter-order-management/waiter-order-management.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -19,6 +24,12 @@ export const routes: Routes = [
     {path:'owner/customerManagement',component:CustomerManagementComponent},
     {path:'owner/employeeManagement',component:EmployeeManagementComponent},
     {path:'owner/productManagement',component:ProductManagementComponent},
+    {path:'owner/OrderManagementComponent',component:OrderManagementComponent},
+    {path:'owner/SalesManagementComponent',component:SalesManagementComponent},
+
+    // {path:'waiter',component:WaiterDashboardComponent},
+    {path:'waiter',component:WaiterProductManagementComponent},
+    {path:'waiter/WaiterOrderManagement',component:WaiterOrderManagementComponent},
 
 
     {path:'Kotthu',component:KottuComponent},

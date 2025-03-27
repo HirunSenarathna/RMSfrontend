@@ -14,11 +14,11 @@ export class ProductServiceService {
         {
             id: '1000',
             code: 'f230fh0g3',
-            name: 'Bamboo Watch',
+            name: 'cheese kottu',
             description: 'Product Description',
-            image: 'bamboo-watch.jpg',
-            price: 65,
-            category: 'Accessories',
+            image: 'assets/kottu3.jpeg',
+            price: 650,
+            category: 'kottu',
             quantity: 24,
             inventoryStatus: 'INSTOCK',
             rating: 5
@@ -26,11 +26,11 @@ export class ProductServiceService {
         {
             id: '1001',
             code: 'nvklal433',
-            name: 'Black Watch',
+            name: 'kottu',
             description: 'Product Description',
-            image: 'black-watch.jpg',
+            image: 'assets/kottu1.jpeg',
             price: 72,
-            category: 'Accessories',
+            category: 'kottu',
             quantity: 61,
             inventoryStatus: 'OUTOFSTOCK',
             rating: 4
@@ -38,11 +38,11 @@ export class ProductServiceService {
         {
             id: '1002',
             code: 'zz21cz3c1',
-            name: 'Blue Band',
+            name: 'Rice and curry',
             description: 'Product Description',
-            image: 'blue-band.jpg',
+            image: 'assets/rnc1.jpg',
             price: 79,
-            category: 'Fitness',
+            category: 'Rice and curry',
             quantity: 2,
             inventoryStatus: 'LOWSTOCK',
             rating: 3
@@ -50,11 +50,11 @@ export class ProductServiceService {
         {
             id: '1003',
             code: '244wgerg2',
-            name: 'Blue T-Shirt',
+            name: 'kottu',
             description: 'Product Description',
-            image: 'blue-t-shirt.jpg',
+            image: 'assets/kottu4.jpeg',
             price: 29,
-            category: 'Clothing',
+            category: 'kottu',
             quantity: 25,
             inventoryStatus: 'INSTOCK',
             rating: 5
@@ -62,11 +62,11 @@ export class ProductServiceService {
         {
             id: '1004',
             code: 'h456wer53',
-            name: 'Bracelet',
+            name: 'Drink 1',
             description: 'Product Description',
-            image: 'bracelet.jpg',
+            image: '/assets/drinks1.jpg',
             price: 15,
-            category: 'Accessories',
+            category: 'Drinks',
             quantity: 73,
             inventoryStatus: 'INSTOCK',
             rating: 4
@@ -74,11 +74,11 @@ export class ProductServiceService {
         {
             id: '1005',
             code: 'av2231fwg',
-            name: 'Brown Purse',
+            name: 'slide 1',
             description: 'Product Description',
-            image: 'brown-purse.jpg',
+            image: 'assets/sides1.jpg',
             price: 120,
-            category: 'Accessories',
+            category: 'Slides',
             quantity: 0,
             inventoryStatus: 'OUTOFSTOCK',
             rating: 4

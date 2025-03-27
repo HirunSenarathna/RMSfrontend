@@ -42,7 +42,6 @@ export class CustomerManagementComponent implements OnInit {
   customerDialog: boolean = false;
   customers!: Customer[];
   customer!: Customer;
-  selectedCustomers!: Customer[] | null;
   submitted: boolean = false;
 
   @ViewChild('dt') dt!: Table;
@@ -83,39 +82,6 @@ export class CustomerManagementComponent implements OnInit {
   exportCSV() {
       this.dt.exportCSV();
   }
-
-  // saveCustomer() {
-  //     this.submitted = true;
-
-  //     if (this.customer.name?.trim()) {
-  //         // Saving customer logic (add or edit)
-  //         if (this.customer.id) {
-  //             // Update existing customer
-  //             const index = this.findIndexById(this.customer.id);
-  //             this.customers[index] = this.customer;
-  //             this.messageService.add({
-  //                 severity: 'success',
-  //                 summary: 'Successful',
-  //                 detail: 'Customer Updated',
-  //                 life: 3000
-  //             });
-  //         } else {
-  //             // Add new customer
-  //             this.customer.id = this.createId();
-  //             this.customers.push(this.customer);
-  //             this.messageService.add({
-  //                 severity: 'success',
-  //                 summary: 'Successful',
-  //                 detail: 'Customer Created',
-  //                 life: 3000
-  //             });
-  //         }
-
-  //         this.customers = [...this.customers];
-  //         this.customerDialog = false;
-  //         this.customer = {};
-  //     }
-  // }
 
   createId(): string {
       let id = '';
