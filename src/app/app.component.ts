@@ -8,10 +8,12 @@ import { OwnerNavbarComponent } from "./components/owner/owner-navbar/owner-navb
 import { OwnerSidebarComponent } from "./components/owner/owner-sidebar/owner-sidebar.component";
 import { WaiterNavbarComponent } from './components/waiter/waiter-navbar/waiter-navbar.component';
 import { WaiterSidebarComponent } from './components/waiter/waiter-sidebar/waiter-sidebar.component';
+import { CashierNavbarComponent } from './components/cashier/cashier-navbar/cashier-navbar.component';
+import { CashierSidebarComponent } from './components/cashier/cashier-sidebar/cashier-sidebar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [HeaderComponent, RouterOutlet, FooterComponent, CommonModule, OwnerNavbarComponent, OwnerSidebarComponent,WaiterNavbarComponent,WaiterSidebarComponent],
+  imports: [HeaderComponent, RouterOutlet, FooterComponent, CommonModule, OwnerNavbarComponent, OwnerSidebarComponent,WaiterNavbarComponent,WaiterSidebarComponent,CashierNavbarComponent,CashierSidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
