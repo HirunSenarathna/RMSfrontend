@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/customer/customer-dashboard/home/home.component';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './auth/login/login.component';
 import { CartComponent } from './components/cart/cart.component';
 import { KottuComponent } from './pages/customer/kottu/kottu.component';
 import { CheckoutComponent } from './pages/customer/checkout/checkout.component';
