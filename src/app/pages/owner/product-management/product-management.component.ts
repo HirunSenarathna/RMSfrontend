@@ -25,6 +25,28 @@ import { InputNumber } from 'primeng/inputnumber';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Table } from 'primeng/table';
+import { SelectButtonModule } from 'primeng/selectbutton';
+
+
+
+import { MenuItem } from '../../../domain/menu-item';
+import { MenuItemVariant } from '../../../domain/menu-item-variant';
+import { MenuCategoryService } from '../../../services/menu-category.service';
+import { MenuItemService } from '../../../services/menu-item.service';
+import { MenuCategory } from '../../../domain/menu-category';
+import { DropdownModule } from 'primeng/dropdown';
+import { MessageModule } from 'primeng/message';
+
+// interface Column {
+//     field: string;
+//     header: string;
+//     customExportHeader?: string;
+// }
+
+// interface ExportColumn {
+//     title: string;
+//     dataKey: string;
+// }
 
 interface Column {
     field: string;
@@ -37,194 +59,308 @@ interface ExportColumn {
     dataKey: string;
 }
 
+import { Size } from '../../../domain/menu-item-variant';
+
 
 @Component({
   selector: 'app-product-management',
-  imports: [CommonModule,ButtonModule,TableModule,ToastModule,ToolbarModule,ConfirmDialog,InputTextModule,TextareaModule,FileUpload,SelectModule,Tag,RadioButton,FormsModule,InputNumber,IconFieldModule,InputIconModule,Rating,Dialog], 
+  imports: [CommonModule,ButtonModule,TableModule,FormsModule,SelectButtonModule,ToastModule,ToolbarModule,ConfirmDialog,InputTextModule,TextareaModule,FileUpload,SelectModule,Tag,FormsModule,InputNumber,IconFieldModule,InputIconModule,Dialog,DropdownModule,MessageModule], 
   templateUrl: './product-management.component.html',
   styleUrl: './product-management.component.css',
     providers: [ProductServiceService,MessageService,ConfirmationService]
 
 })
 export class ProductManagementComponent implements OnInit {
-    productDialog: boolean = false;
 
-    products!: Product[];
+  @ViewChild('dt') dt!: Table;
 
-    product!: Product;
+  // Dialog controls
+  menuItemDialog = false;
+  variantDialog = false;
+  detailsDialog = false;
+  selectedItem: MenuItem | null = null;
 
-    selectedProducts!: Product[] | null;
+  // Data
+  menuItems: MenuItem[] = [];
+  menuItem: MenuItem = this.emptyMenuItem();
+  categories: MenuCategory[] = [];
+  selectedMenuItems: MenuItem[] = [];
+  currentVariant: MenuItemVariant = this.emptyVariant();
+  sizes = Object.values(Size);
 
-    submitted: boolean = false;
+  // UI State
+  submitted = false;
+  loading = false;
 
-    statuses!: any[];
+  // Table columns
+  cols: Column[] = [
+    { field: 'id', header: 'ID' },
+    { field: 'name', header: 'Name' },
+    { field: 'imageUrl', header: 'Image' },
+    { field: 'category.name', header: 'Category' }
+];
+
+  constructor(
+    private menuItemService: MenuItemService,
+    private categoryService: MenuCategoryService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private cd: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.loading = true;
     
+    this.menuItemService.getMenuItems().subscribe({
+      next: (data) => {
+        this.menuItems = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.showError('Failed to load menu items');
+        this.loading = false;
+      }
+    });
 
-    @ViewChild('dt') dt!: Table;
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.categories = data;
+      },
+      error: (err) => {
+        this.showError('Failed to load categories');
+      }
+    });
+  }
 
-    ngAfterViewInit() {
-        setTimeout(() => {
-            if (this.dt) {
-                console.log('Table initialized successfully.');
-            }
+  showDetails(menuItem: MenuItem): void {
+    this.selectedItem = menuItem;
+    this.detailsDialog = true;
+}
+
+  emptyMenuItem(): MenuItem {
+    return {
+      id: null,
+      name: '',
+      description: '',
+      categoryId: null,
+      categoryName: '',
+      available: true,
+      imageUrl: '',
+      imageBase64: '',
+      variants: []
+    };
+  }
+
+  emptyVariant(): MenuItemVariant {
+    return {
+      id: null,
+      size: Size.MEDIUM,
+      variant: '',
+      price: 0,
+      stockQuantity: 0,
+      available: true
+    };
+  }
+
+  openNew(): void {
+    this.menuItem = this.emptyMenuItem();
+    this.submitted = false;
+    this.menuItemDialog = true;
+  }
+
+  editMenuItem(menuItem: MenuItem): void {
+   // Deep copy to avoid mutating original
+   this.menuItem = {
+    ...menuItem,
+    variants: menuItem.variants ? menuItem.variants.map(v => ({ ...v })) : [],
+    categoryId: menuItem.categoryId, // Ensure categoryId is a number
+  
+  };
+
+  this.submitted = false;
+  this.menuItemDialog = true;
+  }
+
+  hideDialog(): void {
+    this.menuItemDialog = false;
+    this.variantDialog = false;
+    this.submitted = false;
+  }
+
+  saveMenuItem(): void {
+    this.submitted = true;
+
+    if (!this.menuItem.name?.trim() || !this.menuItem.categoryId) {
+      return;
+    }
+
+    const menuItemData = {
+      name: this.menuItem.name,
+      description: this.menuItem.description || '',
+      categoryId: this.menuItem.categoryId ? (this.menuItem.categoryId as any).id : null,
+      available: this.menuItem.available,
+      imageBase64: this.menuItem.imageBase64 || '',
+      variants: this.menuItem.variants || []
+    };
+
+    const operation = this.menuItem.id 
+      ? this.menuItemService.updateMenuItem(this.menuItem.id, menuItemData)
+      : this.menuItemService.createMenuItem(menuItemData);
+
+    operation.subscribe({
+      next: () => {
+        this.showSuccess(this.menuItem.id ? 'Menu Item Updated' : 'Menu Item Created');
+        this.loadData();
+        this.menuItemDialog = false;
+      },
+      error: (err) => {
+        this.showError(`Failed to ${this.menuItem.id ? 'update' : 'create'} menu item`);
+      }
+    });
+  }
+
+  getMinPrice(variants: MenuItemVariant[]): number {
+    if (!variants || variants.length === 0) return 0;
+    return Math.min(...variants.map(v => v.price));
+  }
+
+  deleteMenuItem(menuItem: MenuItem): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete ${menuItem.name}?`,
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.menuItemService.deleteMenuItem(menuItem.id!).subscribe({
+          next: () => {
+            this.menuItems = this.menuItems.filter(val => val.id !== menuItem.id);
+            this.showSuccess('Menu Item Deleted');
+          },
+          error: (err) => {
+            this.showError('Failed to delete menu item');
+          }
         });
-    }
+      }
+    });
+  }
 
-    cols!: Column[];
+  deleteSelectedMenuItems(): void {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete the selected menu items?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        const deleteRequests = this.selectedMenuItems.map(item => 
+          this.menuItemService.deleteMenuItem(item.id!)
+        );
 
-    exportColumns!: ExportColumn[];
-
-    constructor(
-        private productService: ProductServiceService,
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService,
-        private cd: ChangeDetectorRef
-    ) {}
-    ngOnInit(): void {
-        this.loadDemoData();
-    }
-
-    exportCSV() {
-        this.dt.exportCSV();
-    }
-
-    loadDemoData() {
-        this.productService.getProducts().then((data) => {
-            this.products = data;
-            this.cd.markForCheck();
+        Promise.all(deleteRequests).then(() => {
+          this.menuItems = this.menuItems.filter(val => !this.selectedMenuItems.includes(val));
+          this.selectedMenuItems = [];
+          this.showSuccess('Menu Items Deleted');
+        }).catch(err => {
+          this.showError('Failed to delete some menu items');
         });
+      }
+    });
+  }
 
-        this.statuses = [
-            { label: 'INSTOCK', value: 'instock' },
-            { label: 'LOWSTOCK', value: 'lowstock' },
-            { label: 'OUTOFSTOCK', value: 'outofstock' }
-        ];
+  // Variant management
+  openVariantDialog(variant?: MenuItemVariant): void {
+    this.currentVariant = variant ? { ...variant } : this.emptyVariant();
+    this.variantDialog = true;
+  }
 
-        this.cols = [
-            { field: 'code', header: 'Code', customExportHeader: 'Product Code' },
-            { field: 'name', header: 'Name' },
-            { field: 'image', header: 'Image' },
-            { field: 'price', header: 'Price' },
-            { field: 'category', header: 'Category' }
-        ];
+  saveVariant(): void {
+    // if (!this.currentVariant.variant || this.currentVariant.price <= 0) {
+    //   this.showError('Please fill all required fields');
+    //   return;
+    // }
 
-        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+    if (!this.menuItem.variants) {
+      this.menuItem.variants = [];
     }
 
-    openNew() {
-        this.product = {};
-        this.submitted = false;
-        this.productDialog = true;
+    const existingIndex = this.currentVariant.id 
+      ? this.menuItem.variants.findIndex(v => v.id === this.currentVariant.id)
+      : -1;
+
+    if (existingIndex >= 0) {
+      this.menuItem.variants[existingIndex] = { ...this.currentVariant };
+    } else {
+      this.menuItem.variants.push({ ...this.currentVariant });
     }
 
-    editProduct(product: Product) {
-        this.product = { ...product };
-        this.productDialog = true;
-    }
+    this.variantDialog = false;
+    this.currentVariant = this.emptyVariant();
+  }
 
-    deleteSelectedProducts() {
-        this.confirmationService.confirm({
-            message: 'Are you sure you want to delete the selected products?',
-            header: 'Confirm',
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                this.products = this.products.filter((val) => !this.selectedProducts?.includes(val));
-                this.selectedProducts = null;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Products Deleted',
-                    life: 3000
-                });
-            }
-        });
-    }
-
-    hideDialog() {
-        this.productDialog = false;
-        this.submitted = false;
-    }
-
-    deleteProduct(product: Product) {
-        this.confirmationService.confirm({
-            message: 'Are you sure you want to delete ' + product.name + '?',
-            header: 'Confirm',
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                this.products = this.products.filter((val) => val.id !== product.id);
-                this.product = {};
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Product Deleted',
-                    life: 3000
-                });
-            }
-        });
-    }
-
-    findIndexById(id: string): number {
-        let index = -1;
-        for (let i = 0; i < this.products.length; i++) {
-            if (this.products[i].id === id) {
-                index = i;
-                break;
-            }
+  deleteVariant(variant: MenuItemVariant): void {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this variant?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        if (this.menuItem.variants) {
+          this.menuItem.variants = this.menuItem.variants.filter(v => v !== variant);
         }
+      }
+    });
+  }
 
-        return index;
+  // File upload handling
+  onFileSelect(event: any): void {
+    if (event.files?.length > 0) {
+      const file = event.files[0];
+      if (file.size > 2000000) {
+        this.showError('File size should be less than 2MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.menuItem.imageBase64 = e.target?.result as string;
+        this.menuItem.imageUrl = this.menuItem.imageBase64; // For preview
+      };
+      reader.readAsDataURL(file);
     }
+  }
 
-    createId(): string {
-        let id = '';
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (var i = 0; i < 5; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return id;
-    }
 
-    getSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
-        switch (status) {
-            case 'In Stock':
-                return 'success';
-            case 'Low Stock':
-                return 'warn';
-            case 'Out of Stock':
-                return 'danger';
-            default:
-                return 'info'; // Map 'unknown' to a valid severity type
-        }
-    }
+  // Helper methods
+  private showSuccess(message: string): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Successful',
+      detail: message,
+      life: 3000
+    });
+  }
 
-    saveProduct() {
-        this.submitted = true;
+  private showError(message: string): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  }
 
-        if (this.product.name?.trim()) {
-            if (this.product.id) {
-                this.products[this.findIndexById(this.product.id)] = this.product;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Product Updated',
-                    life: 3000
-                });
-            } else {
-                this.product.id = this.createId();
-                this.product.image = 'product-placeholder.svg';
-                this.products.push(this.product);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Product Created',
-                    life: 3000
-                });
-            }
+  getSeverity(status: boolean): 'success' | 'danger' {
+    return status ? 'success' : 'danger';
+  }
 
-            this.products = [...this.products];
-            this.productDialog = false;
-            this.product = {};
-        }
-    }
+  exportCSV(): void {
+    this.dt.exportCSV();
+  }
+
+  statuses = [
+    { label: 'Available', value: true },
+    { label: 'Unavailable', value: false }
+];
+
+
 
 }

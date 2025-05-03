@@ -8,3 +8,49 @@
   margin-left: auto;
  margin-right: 10px;
 }
+
+:host ::ng-deep {
+  /* Custom style for table rows */
+  .p-datatable .p-datatable-tbody > tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* Custom style for the variant list */
+  .variant-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  /* Style for the image preview */
+  .image-preview {
+    width: 128px;
+    height: 128px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin: 0 auto;
+    display: block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Status tag styles */
+  .p-tag.p-tag-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .p-tag.p-tag-danger {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  /* Form validation styles */
+  .ng-invalid.ng-touched {
+    border-color: #f44336;
+  }
+
+  .error-message {
+    color: #f44336;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+}

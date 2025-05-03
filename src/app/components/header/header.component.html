@@ -1,26 +1,34 @@
-<header [class.scrolled]="isScrolled" [class.home]="isHomePage">
+<header [class.scrolled]="isScrolled">
   <nav>
+    <div class="menu-icon" (click)="toggleMenu()">
+      <span *ngIf="!isMenuOpen">&#9776;</span> <!-- Menu Icon -->
+      <span *ngIf="isMenuOpen">&#10006;</span> <!-- Cross Icon -->
+    </div>
 
-        <!-- Mobile Menu Toggle Button -->
-        <div class="menu-icon" (click)="toggleMenu()">
-          <span *ngIf="!isMenuOpen">&#9776;</span> <!-- Menu Icon -->
-          <span *ngIf="isMenuOpen">&#10006;</span> <!-- Cross Icon -->
+    <ul class="center-menu" [class.show]="isMenuOpen">
+      <li><a href="/" (click)="closeMenu()">Home</a></li>
+      <li><a href="/Rice&Curry" (click)="closeMenu()">Rice & Curry</a></li>
+      <li><a href="/Kotthu" (click)="closeMenu()">Kotthu</a></li>
+      <li><a href="/Drinks" (click)="closeMenu()">Drinks</a></li>
+    </ul>
+
+    <ul class="right-menu">
+      <li *ngIf="!isLoggedIn">
+        <a href="/login" style="font-size: 20px;">Login</a>
+      </li>
+      <li *ngIf="isLoggedIn" class="dropdown">
+        <span class="material-icons">account_circle</span>
+        <span>{{ userName }}</span>
+        <div class="dropdown-menu">
+          <a href="/account">My Account</a>
+          <a href="/order-history">Order History</a>
+          <a href="/address">Address</a>
+          <a href="/" (click)="logout()">Logout</a>
         </div>
-
-        <ul class="center-menu" [class.show]="isMenuOpen">
-          <li><a href="/" (click)="closeMenu()">Home</a></li>
-          <li><a href="/Rice&Curry" (click)="closeMenu()">Rice & Curry</a></li>
-          <li><a href="/Kotthu" (click)="closeMenu()">Kotthu</a></li>
-          <!-- <li><a href="/Biriyani" (click)="closeMenu()">Biriyani</a></li>
-          <li><a href="/FriedRice" (click)="closeMenu()">Fried Rice</a></li> -->
-          <!-- <li><a href="/Desserts" (click)="closeMenu()">Desserts</a></li> -->
-          <li><a href="/Drinks" (click)="closeMenu()">Drinks</a></li>
-        </ul>
-          
-      <ul class="right-menu">
-        <li><a id="profile" href="/profile"><span class="material-icons">account_circle</span></a></li>
-        <li><a (click)="openCart()"><span class="material-icons">shopping_cart</span></a></li>
-      </ul>
+      </li>
+      <li><a (click)="openCart()"><span class="material-icons">shopping_cart</span></a></li>
+    </ul>
   </nav>
 </header>
+
 <app-cart-sidebar></app-cart-sidebar>

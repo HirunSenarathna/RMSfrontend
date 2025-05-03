@@ -23,8 +23,8 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginComponent {
 
-  user = { firstName: '', lastName: '', address: '', email: '', phone: '', password: '' };
-  luser = { email: '', password: '' };
+  user = { firstname: '', lastname: '', address: '', email: '', phone: '',username:'', password: '' };
+  luser = { username: '', password: '' };
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -33,7 +33,7 @@ export class LoginComponent {
       next: (response) => {
         
         console.log('Registration successful:', response);
-        this.router.navigate(['/login']); 
+        this.router.navigate(['/']); 
       },
       error: (error) => {
         console.error('Registration failed:', error);
@@ -45,14 +45,20 @@ export class LoginComponent {
     this.authService.login(this.luser).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-        if (response.role === 'ROLE_OWNER') {
+        localStorage.setItem('user', JSON.stringify(response)); // Store user data
+        console.log("User Role: ", response.role);
+        console.log("User ID: ", response.id);
+        console.log("User First Name: ", response.firstName);
+        console.log("User Last Name: ", response.lastName);
+
+        if (response.role === 'OWNER') {
           this.router.navigate(['/owner']);
-        }else if (response.role === 'ROLE_CUSTOMER'){
+        }else if (response.role === 'CUSTOMER'){
           this.router.navigate(['/customer'])
         }
-         else if (response.role === 'ROLE_WAITER') {
+         else if (response.role === 'WAITER') {
           this.router.navigate(['/waiter']);
-        } else if (response.role === 'ROLE_CASHIER') {
+        } else if (response.role === 'CASHIER') {
           this.router.navigate(['/cashier']);
         } else {
           this.router.navigate(['']);
