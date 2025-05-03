@@ -3,6 +3,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { OwnerNavbarComponent } from '../owner-navbar/owner-navbar.component';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -13,8 +15,19 @@ import { RouterModule } from '@angular/router';
 })
 export class OwnerSidebarComponent {
 
+  constructor(private authService: AuthService, private router: Router) {}
+
   logout() {
-   alert("You have been logged out");
+    this.authService.logout().subscribe({
+      next: () => {
+        alert('You have been logged out');
+        this.router.navigate(['/']); // Redirect to homepage or login
+      },
+      error: (err) => {
+        console.error('Logout failed', err);
+        alert('Logout failed');
+      }
+    });
   }
 
 }

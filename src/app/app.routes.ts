@@ -40,7 +40,7 @@ export const routes: Routes = [
     {path:'Kotthu',component:KottuComponent},
     {path: 'Rice&Curry',component:RiceAndCurryComponent},
     {path:'Drinks', component:DrinksComponent},
-    {path:'profile',component:LoginComponent},
+    {path:'login',component:LoginComponent},
     {path:'cart',component:CartComponent},
     {path: 'checkout', component:CheckoutComponent},
 
