@@ -1,4 +1,72 @@
 <div class="cart-sidebar" [class.open]="isCartOpen">
+    <button class="close-btn" (click)="toggleCart()">✖</button>
+  
+    <div *ngIf="cartItems.length === 0" class="empty-cart">
+      <p>Your cart is empty</p>
+    </div>
+  
+    <ul *ngIf="cartItems.length > 0" class="cart-items">
+      <li *ngFor="let item of cartItems; let i = index" class="cart-item">
+        <img [src]="item.image" alt="{{ item.name }}" class="img"/>
+        <div class="item-info">
+          <p class="item-name">{{ item.name }}</p>
+          <p class="item-variant" *ngIf="item.variant">{{ item.variant.name }}</p>
+          <p class="item-price">{{ item.quantity }} × {{ item.price | currency:'LKR'  }}</p>
+          <!-- Added quantity controls -->
+          <div class="quantity-controls">
+            <button class="qty-btn" (click)="decreaseQuantity(i)">-</button>
+            <span class="qty-value">{{ item.quantity }}</span>
+            <button class="qty-btn" (click)="increaseQuantity(i)">+</button>
+          </div>
+        </div>
+        <button class="remove-btn" (click)="removeItem(i)">✖</button>
+      </li>
+    </ul>
+  
+    <p *ngIf="cartItems.length > 0" class="subtotal"><strong>Subtotal:</strong> {{ getTotal() | currency:'LKR'  }}</p>
+  
+    <div *ngIf="cartItems.length > 0" class="cart-buttons">
+      <button class="cart-btn" (click)="viewCart()">View Cart</button>
+      <button class="cart-btn" (click)="checkout()">Checkout</button>
+    </div>
+  </div>
+  
+  <div class="overlay" *ngIf="isCartOpen" (click)="toggleCart()"></div>
+
+
+<!-- v2 -->
+<!-- <div class="cart-sidebar" [class.open]="isCartOpen">
+    <button class="close-btn" (click)="toggleCart()">✖</button>
+  
+    <div *ngIf="cartItems.length === 0" class="empty-cart">
+      <p>Your cart is empty</p>
+    </div>
+  
+    <ul *ngIf="cartItems.length > 0" class="cart-items">
+      <li *ngFor="let item of cartItems; let i = index" class="cart-item">
+        <img [src]="item.image" alt="{{ item.name }}" class="img"/>
+        <div class="item-info">
+          <p class="item-name">{{ item.name }}</p>
+          <p class="item-variant" *ngIf="item.variant">{{ item.variant.name }}</p>
+          <p class="item-price">{{ item.quantity }} × {{ item.price | currency }}</p>
+        </div>
+        <button class="remove-btn" (click)="removeItem(i)">✖</button>
+      </li>
+    </ul>
+  
+    <p *ngIf="cartItems.length > 0" class="subtotal"><strong>Subtotal:</strong> {{ getTotal() | currency }}</p>
+  
+    <div *ngIf="cartItems.length > 0" class="cart-buttons">
+      <button class="cart-btn" (click)="viewCart()">View Cart</button>
+      <button class="cart-btn" (click)="checkout()">Checkout</button>
+    </div>
+  </div>
+  
+  <div class="overlay" *ngIf="isCartOpen" (click)="toggleCart()"></div> -->
+
+  <!-- v1 -->
+
+<!-- <div class="cart-sidebar" [class.open]="isCartOpen">
   <button class="close-btn" (click)="toggleCart()">✖</button>
 
   <ul class="cart-items">
@@ -20,4 +88,4 @@
   </div>
 </div>
 
-<div class="overlay" *ngIf="isCartOpen" (click)="toggleCart()"></div>
+<div class="overlay" *ngIf="isCartOpen" (click)="toggleCart()"></div> -->

@@ -1,0 +1,90 @@
+<div class="order-confirmation">
+    <div class="confirmation-header">
+      <div class="icon-container">
+        <i class="check-icon">✓</i>
+      </div>
+      <h1>Thank You!</h1>
+      <p>Your order has been received</p>
+    </div>
+    
+    <div class="order-info">
+      <div class="info-item">
+        <h3>Order Number</h3>
+        <p>{{ orderId }}</p>
+      </div>
+      <div class="info-item">
+        <h3>Date</h3>
+        <p>{{ orderData.date | date:'medium' }}</p>
+      </div>
+      <div class="info-item">
+        <h3>Total</h3>
+        <p>{{ orderData.total | currency }}</p>
+      </div>
+      <div class="info-item">
+        <h3>Payment Method</h3>
+        <p>{{ orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card' }}</p>
+      </div>
+    </div>
+    
+    <div class="order-details">
+      <h2>Order Details</h2>
+      
+      <div class="order-summary">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of orderData.items">
+              <td>
+                {{ item.name }} <span *ngIf="item.variant">({{ item.variant.name }})</span> × {{ item.quantity }}
+              </td>
+              <td>{{ item.price * item.quantity | currency:'LKR' }}</td>
+            </tr>
+            <tr class="subtotal">
+              <td>Subtotal </td>
+              <td>{{ orderData.subtotal |  currency:'LKR' }}</td>
+            </tr>
+
+            <tr class="total">
+              <td>Total </td>
+              <td>{{ orderData.total |  currency:'LKR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="customer-details">
+        <div class="address-column">
+          <h3>Shipping Address</h3>
+          <address>
+            {{ orderData.customer.firstName }} {{ orderData.customer.lastName }}<br>
+            {{ orderData.customer.address }}<br>
+            {{ orderData.customer.city }}<br>
+            <span *ngIf="orderData.customer.district">{{ orderData.customer.district }}<br></span>
+            Phone: {{ orderData.customer.phone }}<br>
+            Email: {{ orderData.customer.email }}
+          </address>
+        </div>
+        
+        <div class="address-column" *ngIf="orderData.customer.differentAddress">
+          <h3>Billing Address</h3>
+          <address>
+            {{ orderData.customer.firstName }} {{ orderData.customer.lastName }}<br>
+            {{ orderData.customer.shippingAddress }}<br>
+            {{ orderData.customer.shippingCity }}<br>
+            Phone: {{ orderData.customer.phone }}<br>
+            Email: {{ orderData.customer.email }}
+          </address>
+        </div>
+      </div>
+    </div>
+    
+    <div class="confirmation-actions">
+      <button class="continue-btn" (click)="continueShopping()">Continue Shopping</button>
+      <button class="track-btn" (click)="trackOrder()">Track Order</button>
+    </div>
+  </div>

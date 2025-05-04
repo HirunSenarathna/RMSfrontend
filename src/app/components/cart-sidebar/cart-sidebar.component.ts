@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { CartServiceService } from '../../services/cart-service.service';
+import { CartService } from '../../services/cart.service';
+import { CartItem } from '../../domain/cartItem';
+import { Router } from '@angular/router'; // Import Router for navigation
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,24 +13,87 @@ import { CommonModule } from '@angular/common';
 export class CartSidebarComponent {
 
   isCartOpen = false;
-  cartItems: any[] = [];
+  cartItems: CartItem[] = [];
 
-  constructor(private cartService: CartServiceService) {}
+  constructor(
+    private cartService: CartService,
+    private router: Router
+  ) {}
 
-  ngOnInit() {
-    this.cartItems = this.cartService.getCartItems();
+  ngOnInit(): void {
+    // Subscribe to cart changes
+    this.cartService.cartItems$.subscribe(items => {
+      this.cartItems = items;
+    });
   }
 
-  toggleCart() {
+  toggleCart(): void {
     this.isCartOpen = !this.isCartOpen;
   }
 
-  removeItem(index: number) {
+  removeItem(index: number): void {
     this.cartService.removeFromCart(index);
   }
 
-  getTotal() {
-    return this.cartItems.reduce((total, item) => total + item.price, 0);
+  getTotal(): number {
+    return this.cartService.getSubtotal();
   }
+  
+  viewCart(): void {
+    this.toggleCart(); // Close the sidebar
+    this.router.navigate(['/cart']);
+  }
+  
+  checkout(): void {
+    this.toggleCart(); // Close the sidebar
+    this.router.navigate(['/checkout']);
+  }
+
+  // Added quantity control methods
+  increaseQuantity(index: number): void {
+    this.cartService.increaseQuantity(index);
+  }
+  
+  decreaseQuantity(index: number): void {
+    this.cartService.decreaseQuantity(index);
+  }
+
+  
+  // isCartOpen = false;
+  // cartItems: CartItem[] = [];
+
+  // constructor(
+  //   private cartService: CartService,
+  //   private router: Router
+  // ) {}
+
+  // ngOnInit(): void {
+  //   // Subscribe to cart changes
+  //   this.cartService.cartItems$.subscribe(items => {
+  //     this.cartItems = items;
+  //   });
+  // }
+
+  // toggleCart(): void {
+  //   this.isCartOpen = !this.isCartOpen;
+  // }
+
+  // removeItem(index: number): void {
+  //   this.cartService.removeFromCart(index);
+  // }
+
+  // getTotal(): number {
+  //   return this.cartService.getSubtotal();
+  // }
+  
+  // viewCart(): void {
+  //   this.toggleCart(); // Close the sidebar
+  //   this.router.navigate(['/cart']);
+  // }
+  
+  // checkout(): void {
+  //   this.toggleCart(); // Close the sidebar
+  //   this.router.navigate(['/checkout']);
+  // }
 
 }

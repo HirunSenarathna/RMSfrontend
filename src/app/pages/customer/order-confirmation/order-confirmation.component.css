@@ -1,0 +1,189 @@
+.order-confirmation {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+  
+  .confirmation-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .icon-container {
+    width: 70px;
+    height: 70px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  
+  .check-icon {
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+  }
+  
+  .confirmation-header h1 {
+    font-size: 28px;
+    margin: 0 0 10px;
+    color: #333;
+  }
+  
+  .confirmation-header p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+  
+  .order-info {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 30px;
+    justify-content: space-between;
+  }
+  
+  .info-item {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .info-item h3 {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 10px;
+    text-transform: uppercase;
+  }
+  
+  .info-item p {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .order-details {
+    margin-bottom: 40px;
+  }
+  
+  .order-details h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .order-summary {
+    margin-bottom: 30px;
+  }
+  
+  .order-summary table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .order-summary th,
+  .order-summary td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .order-summary th {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .order-summary tr.subtotal {
+    background-color: #f9f9f9;
+  }
+  
+  .order-summary tr.total {
+    background-color: #f9f9f9;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .customer-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+  
+  .address-column {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .address-column h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  address {
+    font-style: normal;
+    line-height: 1.6;
+    color: #666;
+  }
+  
+  .confirmation-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+  }
+  
+  .continue-btn, 
+  .track-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  
+  .continue-btn {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  .track-btn {
+    background-color: #4a90e2;
+    color: white;
+  }
+  
+  .continue-btn:hover {
+    background-color: #e5e5e5;
+  }
+  
+  .track-btn:hover {
+    background-color: #3a7bc8;
+  }
+  
+  @media (max-width: 600px) {
+    .order-info {
+      flex-direction: column;
+    }
+    
+    .info-item {
+      padding: 15px 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    
+    .confirmation-actions {
+      flex-direction: column;
+    }
+  }

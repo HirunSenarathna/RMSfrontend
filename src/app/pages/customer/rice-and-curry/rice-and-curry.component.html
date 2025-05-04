@@ -1,4 +1,24 @@
-<div class="menu-container">
-    <app-menu-items *ngFor="let meal of menuItems" [item]="meal"></app-menu-items>
-</div>
-  
+<div class="page-container">
+    <h1 class="page-title">Rice & Curry Menu</h1>
+    
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading menu items...</p>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div *ngIf="!loading && !error" class="menu-container">
+      <app-menu-items 
+        *ngFor="let item of menuItems" 
+        [item]="item"
+        (addToCart)="onAddToCart($event)">
+      </app-menu-items>
+    </div>
+    
+    <div *ngIf="!loading && !error && menuItems.length === 0" class="no-items">
+      <p>No menu items available at the moment.</p>
+    </div>
+  </div>
