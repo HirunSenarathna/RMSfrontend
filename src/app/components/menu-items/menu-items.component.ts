@@ -4,6 +4,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
+import { EventEmitter, Output } from '@angular/core';
+import { MenuItemService } from '../../services/menu-item.service';
 
 export interface Meal {
   name: string;
@@ -23,9 +25,37 @@ export interface Meal {
 export class MenuItemsComponent {
  
   @Input() item: any;
+  @Output() addToCart = new EventEmitter<any>();
+  
+  selectedVariant: any;
+
+  constructor(private menuItemService: MenuItemService) {}
+
+  ngOnInit(): void {
+    // Set default selected variant to the first one
+    if (this.item?.variants && this.item.variants.length > 0) {
+      this.selectedVariant = this.item.variants[0];
+    }
+  }
 
   rate(value: number) {
     this.item.rating = value;
+    // You might want to implement a rating service later
+  }
+  
+  onAddToCart() {
+    // Emit event with item and selected variant
+    this.addToCart.emit({
+      item: this.item,
+      variant: this.selectedVariant || this.item.variants?.[0]
+    });
+    alert('Item added to cart!');
+  }
+  
+  onVariantChange(variantId: number) {
+    if (this.item.variants) {
+      this.selectedVariant = this.item.variants.find((v: any) => v.id === variantId);
+    }
   }
   
 }

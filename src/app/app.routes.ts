@@ -17,6 +17,9 @@ import { WaiterProductManagementComponent } from './pages/waiter/waiter-product-
 import { WaiterOrderManagementComponent } from './pages/waiter/waiter-order-management/waiter-order-management.component';
 import { LargeOrdersComponent } from './components/waiter/large-orders/large-orders.component';
 import { CashierOrderManagementComponent } from './pages/cashier/cashier-order-management/cashier-order-management.component';
+import { OrderConfirmationComponent } from './pages/customer/order-confirmation/order-confirmation.component';
+import { FriedRiceComponent } from './pages/customer/fried-rice/fried-rice.component';
+import { ShortEatsComponent } from './pages/customer/short-eats/short-eats.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -38,11 +41,14 @@ export const routes: Routes = [
 
 
     {path:'Kotthu',component:KottuComponent},
+    {path:'FriedRice',component:FriedRiceComponent},
     {path: 'Rice&Curry',component:RiceAndCurryComponent},
+    {path: 'ShortEats',component:ShortEatsComponent},
     {path:'Drinks', component:DrinksComponent},
     {path:'login',component:LoginComponent},
     {path:'cart',component:CartComponent},
     {path: 'checkout', component:CheckoutComponent},
+    {path: 'orderConfirmation', component: OrderConfirmationComponent},
 
 
     { path: '**', redirectTo: '' }

@@ -7,12 +7,12 @@ import { CartService } from '../../../services/cart.service'; // Assuming you ha
 import { CartItem } from '../../../domain/cartItem'; // Assuming you have a CartItem interface
 
 @Component({
-  selector: 'app-drinks',
-  imports: [MenuItemsComponent,CommonModule],
-  templateUrl: './drinks.component.html',
-  styleUrl: './drinks.component.css'
+  selector: 'app-short-eats',
+  imports: [CommonModule, MenuItemsComponent],
+  templateUrl: './short-eats.component.html',
+  styleUrl: './short-eats.component.css'
 })
-export class DrinksComponent {
+export class ShortEatsComponent {
 
    menuItems: any[] = [];
     loading = true;
@@ -23,7 +23,7 @@ export class DrinksComponent {
   
     ngOnInit(): void {
       
-      this.menuItemService.getMenuItemsByCategory(5).subscribe({
+      this.menuItemService.getMenuItemsByCategory(4).subscribe({
         next: (items: MenuItem[]) => {
           this.menuItems = items.map(item => this.transformMenuItem(item));
           this.loading = false;
@@ -88,4 +88,7 @@ export class DrinksComponent {
     }
    
     
+
+  
+
 }

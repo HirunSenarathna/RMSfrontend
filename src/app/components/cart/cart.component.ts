@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CartService } from '../../services/cart.service';
+import { CartItem } from '../../domain/cartItem'; 
+import { Router } from '@angular/router'; // Import Router for navigation
 
 @Component({
   selector: 'app-cart',
@@ -8,46 +11,51 @@ import { CommonModule } from '@angular/common';
   styleUrl: './cart.component.css'
 })
 export class CartComponent {
-    cartItems = [
-      {
-        id: 1,
-        name: 'Coconut Water',
-        price: 2.99,
-        quantity: 1,
-        image: 'assets/drinks2.jpg' // Update with actual path
-      },
-      {
-        id: 2,
-        name: 'Fish Curry with Coconut Rice',
-        price: 13.49,
-        quantity: 1,
-        image: 'assets/rnc2.jpg' // Update with actual path
-      }
-    ];
+  cartItems: CartItem[] = [];
   
-    shippingRate = 15.0;
+  constructor(
+    private cartService: CartService,
+    private router: Router
+  ) {}
   
-    get subtotal(): number {
-      return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    }
+  ngOnInit(): void {
+    // Subscribe to cart changes
+    this.cartService.cartItems$.subscribe(items => {
+      this.cartItems = items;
+    });
+  }
   
-    get total(): number {
-      return this.subtotal + this.shippingRate;
-    }
+  get subtotal(): number {
+    return this.cartService.getSubtotal();
+  }
   
-    increaseQuantity(item: any) {
-      item.quantity++;
-    }
+  get discount(): number {
+    return this.cartService.getDiscount() * this.subtotal ;
+  }
   
-    decreaseQuantity(item: any) {
-      if (item.quantity > 1) {
-        item.quantity--;
-      }
-    }
+  get total(): number {
+    return this.cartService.getTotal();
+  }
   
-    removeItem(index: number) {
-      this.cartItems.splice(index, 1);
-    }
+  increaseQuantity(index: number): void {
+    this.cartService.increaseQuantity(index);
+  }
+  
+  decreaseQuantity(index: number): void {
+    this.cartService.decreaseQuantity(index);
+  }
+  
+  removeItem(index: number): void {
+    this.cartService.removeFromCart(index);
+  }
+  
+  proceedToCheckout(): void {
+    this.router.navigate(['/checkout']);
+  }
+  
+  continueShopping(): void {
+    this.router.navigate(['/']);
+  }
 
     
   }

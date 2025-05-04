@@ -1,10 +1,31 @@
 <div class="menu-card">
   <div class="sale-badge" *ngIf="item.sale">Sale</div>
+  <div class="availability-badge" *ngIf="!item.available">Unavailable</div>
   <img [src]="item.image" alt="{{ item.name }}" class="menu-image">
   <h3>{{ item.name }}</h3>
-  <p>
-    <span *ngIf="item.sale" class="old-price">${{ item.oldPrice }}</span>
-    <span class="price">${{ item.price }}</span>
+  <p class="description">{{ item.description }}</p>
+  
+  <!-- Price display -->
+  <!-- <p>
+    <span *ngIf="item.sale" class="old-price">{{ item.oldPrice | currency }}</span>
+    <span class="price">{{ selectedVariant?.price || item.price | currency }}</span>
+  </p> -->
+
+  <!-- Variant selector if multiple variants are available -->
+  <mat-form-field *ngIf="item.variants && item.variants.length > 1" appearance="outline" class="variant-selector">
+    <mat-label>Size</mat-label>
+    <mat-select [(value)]="selectedVariant" (selectionChange)="onVariantChange($event.value.id)">
+      <mat-option *ngFor="let variant of item.variants" [value]="variant">
+        {{ variant.size }} - {{ variant.price | currency:'LKR' }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Stock display -->
+  <p class="stock-info" *ngIf="selectedVariant">
+    <span [ngClass]="{'low-stock': selectedVariant.stockQuantity < 5}">
+      {{ selectedVariant.stockQuantity > 0 ? 'In stock: ' + selectedVariant.stockQuantity : 'Out of stock' }}
+    </span>
   </p>
 
   <div class="star-rating">
@@ -15,5 +36,10 @@
     </span>
   </div>
   
-  <button class="add-to-cart">Add to cart</button>
+  <button 
+    class="add-to-cart" 
+    [disabled]="!item.available || (selectedVariant && selectedVariant.stockQuantity <= 0)"
+    (click)="onAddToCart()">
+    Add to cart
+  </button>
 </div>

@@ -1,0 +1,20 @@
+<div class="payment-callback-container">
+    <div class="loading" *ngIf="loading">
+      <h2>Processing your payment...</h2>
+      <div class="spinner"></div>
+    </div>
+    
+    <div class="success" *ngIf="paymentStatus === 'success'">
+      <h2>Payment Successful!</h2>
+      <p>Your order has been confirmed. Order ID: {{ orderId }}</p>
+      <button (click)="navigateToOrderDetails()">View Order Details</button>
+      <button (click)="navigateToHome()">Continue Shopping</button>
+    </div>
+    
+    <div class="error" *ngIf="paymentStatus === 'error'">
+      <h2>Payment Failed</h2>
+      <p>{{ errorMessage }}</p>
+      <button (click)="navigateToCheckout()">Try Again</button>
+      <button (click)="navigateToHome()">Continue Shopping</button>
+    </div>
+  </div>
