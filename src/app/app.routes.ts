@@ -20,9 +20,16 @@ import { CashierOrderManagementComponent } from './pages/cashier/cashier-order-m
 import { OrderConfirmationComponent } from './pages/customer/order-confirmation/order-confirmation.component';
 import { FriedRiceComponent } from './pages/customer/fried-rice/fried-rice.component';
 import { ShortEatsComponent } from './pages/customer/short-eats/short-eats.component';
+import { CashierDashboardComponent } from './pages/cashier/cashier-dashboard/cashier-dashboard.component';
+import { NewOrderComponent } from './pages/cashier/new-order/new-order.component';
+import { OnlineOrdersComponent } from './pages/cashier/online-orders/online-orders.component';
+import { ViewPaymentsComponent } from './pages/cashier/view-payments/view-payments.component';
+import { ViewOrdersComponent } from './pages/cashier/view-orders/view-orders.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
+    
+
     
     {path:'owner',component:OwnerDashboardComponent},
 
@@ -37,7 +44,10 @@ export const routes: Routes = [
     {path:'waiter/WaiterOrderManagement',component:WaiterOrderManagementComponent},
     {path:'waiter/LargeOrders',component:LargeOrdersComponent},
 
-    {path:'cashier',component:CashierOrderManagementComponent},
+    {path:'cashier',component:CashierDashboardComponent},
+    {path:'cashier/onlineOrders',component:OnlineOrdersComponent},
+    {path:'cashier/viewOrders',component:ViewOrdersComponent},
+    {path:'cashier/viewPayments',component:ViewPaymentsComponent},
 
 
     {path:'Kotthu',component:KottuComponent},
