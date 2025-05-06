@@ -1,35 +1,85 @@
 .header {
-    height: 70px;
-    padding: 20px 50px;
-    background-color: rgb(1, 38, 69);
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 5px 5px 5px #939393;
+  height: 70px;
+  padding: 0 20px;
+  background-color: rgb(1, 38, 69);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 5px 5px 5px #939393;
+  position: relative;
+  z-index: 100;
+  gap: 20px;
+}
+
+.header .logo {
+  font-weight: bold;
+  font-size: 20px;
+  min-width: 150px;
+}
+
+.pos-navigation {
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.header .user {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  gap: 10px;
+  min-width: 150px;
+  justify-content: flex-end;
+}
+
+.header .user .user-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background-color: rgb(11, 107, 185);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.header .user .user-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .pos-navigation {
+      flex-wrap: wrap;
+      padding: 5px 0;
   }
   
-  .header .logo {
-    font-weight: bold;
-    font-size: 20px;
+  .pos-navigation p-button {
+      margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+      flex-direction: column;
+      height: auto;
+      padding: 10px;
   }
   
-  .header .user {
-    display: flex;
-    align-items: center;
-    font-weight: bold;
+  .logo, .user {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
   }
   
-  .header .user .user-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    background-color: rgb(11, 107, 185);
-    margin-left: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
+  .pos-navigation {
+      width: 100%;
+      justify-content: center;
   }
-  
+}

@@ -80,6 +80,21 @@ export class MenuItemService {
     return this.http.put<void>(`${this.apiUrl}/menu-item-variants/${variantId}/quantity/reduce?amount=${amount}`, {});
   }
 
+  //
+  getAllMenuItems(): Observable<MenuItem[]> {
+    return this.http.get<MenuItem[]>(this.apiUrl);
+  }
+
+  //
+  getCategories(): Observable<MenuCategory[]> {
+    return this.http.get<MenuCategory[]>(`${this.apiUrl}/categories`);
+  }
+
+  
+
+  getMenuItemVariants(menuItemId: number): Observable<MenuItemVariant[]> {
+    return this.http.get<MenuItemVariant[]>(`${this.apiUrl}/items/${menuItemId}/variants`);
+  }
   
 
   // private apiUrl = 'http://localhost:8081/api/menu/items'; 

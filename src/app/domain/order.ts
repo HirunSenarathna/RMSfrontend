@@ -14,4 +14,5 @@ export interface Order {
   server?: string;
   orderType?: string;
   status?: string;
+  isPaid?: boolean;
 }

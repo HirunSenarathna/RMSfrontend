@@ -25,3 +25,4 @@ export interface MenuItem {
     imageBase64?: string;
     variants: MenuItemVariant[];
 }
+

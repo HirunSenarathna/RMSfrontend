@@ -66,7 +66,7 @@ export class OrderManagementComponent implements OnInit {
 
   loadOrders() {
     this.orderService.getOrders().then((data) => {
-      this.orders = data;
+    //   this.orders = data;
       this.cd.markForCheck();
     });
   }

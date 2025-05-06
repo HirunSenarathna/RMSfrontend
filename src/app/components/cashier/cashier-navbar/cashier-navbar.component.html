@@ -1,7 +1,21 @@
 <div class="header">
-    <div class="logo">Logo</div>
-    <div class="user">
-      <div class="user-name">Hi Cashier</div>
-      <div class="user-image"><img src="assets/pi1.avif" width="30px ; height 30 px "></div>
+  <div class="logo">Restaurant POS</div>
+  
+  <!-- Moved Toolbar Navigation Here -->
+  <div class="pos-navigation">
+    <p-button label="New Order" icon="pi pi-plus" styleClass="mr-2" routerLink="/cashier"></p-button>
+    <p-button label="Online Orders" icon="pi pi-shopping-cart" styleClass="p-button-info mr-2" 
+              routerLink="/cashier/onlineOrders"></p-button>
+    <p-button label="View Orders" icon="pi pi-list" styleClass="p-button-secondary mr-2" 
+              routerLink="/cashier/viewOrders"></p-button>
+    <p-button label="View Payments" icon="pi pi-dollar" styleClass="p-button-secondary" 
+              routerLink="/cashier/viewPayments"></p-button>
+  </div>
+
+  <div class="user">
+    <!-- <div class="user-name">Hi, {{ userName }}</div> -->
+    <div class="user-image">
+      <!-- <img [src]="userImage" width="30px" height="30px"> -->
     </div>
   </div>
+</div>

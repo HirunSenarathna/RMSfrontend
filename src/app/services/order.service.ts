@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Order } from '../domain/pos/Order';
 
 @Injectable({
   providedIn: 'root'
@@ -124,5 +125,55 @@ export class OrderService {
       observer.complete();
     });
   }
+
+
+   getActiveOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/active`);
+  }
+
+  getPendingOnlineOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/online/pending`);
+  }
+
+  getOrderById(id: number): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/${id}`);
+  }
+
+  createOrder(order: Order): Observable<Order> {
+    return this.http.post<Order>(this.apiUrl, order);
+  }
+
+  updateOrder(order: Order): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${order.id}`, order);
+  }
+
+  getOrderHistory(filters: any): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/history`, { params: filters });
+  }
   
+  //
+
+ 
+
+  getAllOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(this.apiUrl);
+  }
+
+  getPendingOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/pending`);
+  }
+
+  
+
+  updateOrderStatus(id: number, status: string): Observable<Order> {
+    return this.http.patch<Order>(`${this.apiUrl}/${id}/status`, { status });
+  }
+
+  getOnlineOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/online`);
+  }
+
+  getInRestaurantOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/in-restaurant`);
+  }
 }
