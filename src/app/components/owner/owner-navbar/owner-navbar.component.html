@@ -1,7 +1,22 @@
 <div class="header">
-  <div class="logo">Logo</div>
+  <!-- <div class="logo">Logo</div> -->
+  
+   
   <div class="user">
-    <div class="user-name">Hi Admin</div>
-    <div class="user-image"><img src="assets/pi1.avif" width="30px ; height 30 px "></div>
+    <div class="user-name" *ngIf="currentUser">Hi, {{ currentUser.firstname }}</div>
+    <!-- <div class="user-dropdown">
+      <div class="user-image" [matMenuTriggerFor]="userMenu">
+        <img *ngIf="currentUser?.profileImage" [src]="currentUser.profileImage" alt="Profile" width="30px" height="30px">
+        <div *ngIf="!currentUser?.profileImage" class="user-initials">{{ userInitials }}</div>
+      </div>
+      
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item routerLink="/owner/profile">
+          <mat-icon>account_circle</mat-icon>
+          <span>Profile</span>
+        </button>
+      </mat-menu>
+    </div> -->
   </div>
+
 </div>

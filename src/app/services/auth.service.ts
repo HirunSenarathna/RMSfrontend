@@ -2,13 +2,31 @@ import { Injectable } from '@angular/core';
 import { HttpClient,HttpHeaders  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BehaviorSubject, catchError, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
+export interface User {
+  id: number;
+  firstname: string;
+  lastname: string;
   email: string;
   phone: string;
+  username: string;
+  role?: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  tokenType: string;
+  userId: number;
+  id: number;
+  username: string;
+  email: string;
+  firstname: string;
+  lastname: string;
+  phone: string;
+  role: string;
+  expiresIn: number;
 }
 
 @Injectable({
@@ -16,133 +34,116 @@ interface User {
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8083/api/customers'; 
-  private apiUrl1 = 'http://localhost:8083/api/auth';
-
-
-  constructor(private http: HttpClient) {
-    // Check if user is logged in on service instantiation
-    this.checkAuthStatus();
-  }
-
-  register(user: any): Observable<any> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    
-    return this.http.post(`${this.apiUrl}/register`, user, { 
-      headers,
-      withCredentials: true // Include if using cookies/sessions
-    });
-  }
-
-  login(credentials: { username: string, password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl1}/login`, credentials);
-  }
-
-  logout(): Observable<any> {
-    return this.http.post(`${this.apiUrl1}/logout`, {}, {
-      withCredentials: true // Ensure cookies/session are handled
-    });
-  }
-
-
+ private apiUrl = 'http://localhost:8083/api';
+  private tokenKey = 'auth_token';
+  private userKey = 'user';
+  
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   
-  
+  constructor(private http: HttpClient, private router: Router) {
+    this.checkAuthStatus();
+  }
 
-  /**
-   * Check authentication status from local storage token
-   */
-  private checkAuthStatus(): void {
-    const token = localStorage.getItem('auth_token');
-    
-    if (token) {
-      // Verify token with backend
-      this.verifyToken(token).subscribe({
-        next: (user) => {
-          if (user) {
-            this.currentUserSubject.next(user);
-            this.isAuthenticatedSubject.next(true);
-          } else {
-            // Clear invalid token
-            this.logout();
+  // Register a new customer
+  register(user: any): Observable<any> {
+    console.log('Registering user:', user);
+    return this.http.post(`${this.apiUrl}/customers/register`, user);
+  }
+
+  // Login user (customer or employee)
+  login(credentials: { identifier: string, password: string }): Observable<any> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
+      .pipe(
+        tap(response => {
+          // Store token from response
+          if (response.accessToken) {
+            localStorage.setItem(this.tokenKey, response.accessToken);
+          } else if (response.tokenType && response.tokenType === 'Bearer') {
+            // For backwards compatibility - some responses might have token in different format
+            localStorage.setItem(this.tokenKey, response.tokenType + ' ' + response.accessToken);
           }
-        },
-        error: () => {
-          // Token verification failed, clear it
-          this.logout();
-        }
-      });
+          
+          // Store user data
+          localStorage.setItem(this.userKey, JSON.stringify(response));
+          
+          // Update observables
+          this.currentUserSubject.next(response);
+          this.isAuthenticatedSubject.next(true);
+        })
+      );
+  }
+
+  // Logout user
+  logout(): Observable<any> {
+    // Get the token for the logout request
+    const token = this.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    // Attempt to logout from the server
+    return this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers })
+      .pipe(
+        tap(() => this.clearAuthData()),
+        catchError(error => {
+          console.error('Logout error:', error);
+          // Still clear local auth data even if server logout fails
+          this.clearAuthData();
+          return of({ message: 'Logged out locally' });
+        })
+      );
+  }
+
+  // Clear all authentication data
+  private clearAuthData(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey);
+    this.currentUserSubject.next(null);
+    this.isAuthenticatedSubject.next(false);
+    this.router.navigate(['/login']);
+  }
+
+  // Check if stored token exists and is valid
+  private checkAuthStatus(): void {
+    const token = localStorage.getItem(this.tokenKey);
+    const userJson = localStorage.getItem(this.userKey);
+    
+    if (token && userJson) {
+      try {
+        const user = JSON.parse(userJson);
+        this.currentUserSubject.next(user);
+        this.isAuthenticatedSubject.next(true);
+      } catch (e) {
+        this.clearAuthData();
+      }
     }
   }
 
-  /**
-   * Verify token with backend
-   * @param token JWT token to verify
-   * @returns Observable with user data if token is valid
-   */
-  private verifyToken(token: string): Observable<User | null> {
-    return this.http.get<User>(`${this.apiUrl}/verify-token`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).pipe(
-      catchError(() => of(null))
-    );
+  // Get the stored authentication token
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
   }
 
-  /**
-   * Login user
-   * @param email User email
-   * @param password User password
-   * @returns Observable with login result
-   */
-  // login(email: string, password: string): Observable<any> {
-  //   return this.http.post<any>(`${this.apiUrl}/login`, { email, password })
-  //     .pipe(
-  //       tap(response => {
-  //         if (response.token) {
-  //           localStorage.setItem('auth_token', response.token);
-  //           this.currentUserSubject.next(response.user);
-  //           this.isAuthenticatedSubject.next(true);
-  //         }
-  //       })
-  //     );
-  // }
-
-  /**
-   * Logout user
-   */
-  // logout(): void {
-  //   localStorage.removeItem('auth_token');
-  //   this.currentUserSubject.next(null);
-  //   this.isAuthenticatedSubject.next(false);
-  // }
-
-  /**
-   * Check if user is authenticated
-   * @returns Observable with authentication status
-   */
+  // Check if user is authenticated
   isAuthenticated(): Observable<boolean> {
     return this.isAuthenticatedSubject.asObservable();
   }
 
-  /**
-   * Get current user data
-   * @returns Observable with current user data
-   */
+  // Get current user information
   getCurrentUser(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
   }
 
-  /**
-   * Get current user ID
-   * @returns Current user ID or null if not logged in
-   */
-  getCurrentUserId(): string | null {
-    const currentUser = this.currentUserSubject.value;
-    return currentUser ? currentUser.id : null;
+  // Get current user value synchronously
+  getCurrentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  // Check if current user has a specific role
+  hasRole(role: string): boolean {
+    const user = this.currentUserSubject.value;
+    return !!user && user.role === role;
   }
 
  
