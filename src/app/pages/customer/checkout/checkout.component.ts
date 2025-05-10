@@ -67,8 +67,8 @@ export class CheckoutComponent {
           if (user) {
             // Auto-fill form with user data
             this.checkoutForm.patchValue({
-              firstName: user.firstName || '',
-              lastName: user.lastName || '',
+              firstName: user.firstname || '',
+              lastName: user.lastname || '',
               phone: user.phone || '',
               email: user.email || ''
             });
@@ -113,7 +113,7 @@ export class CheckoutComponent {
         subtotal: this.getSubtotal(),
         shippingCost: this.getDiscount(),
         date: new Date(),
-        userId: this.isUserLoggedIn ? this.authService.getCurrentUserId() : null
+        userId: this.isUserLoggedIn ? this.authService.getCurrentUser: null
       };
       
       if (this.selectedPaymentMethod === 'cod') {
