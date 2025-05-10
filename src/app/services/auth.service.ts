@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { BehaviorSubject, catchError, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { CartService } from './cart.service';
 
 export interface User {
   id: number;
@@ -26,7 +27,7 @@ export interface LoginResponse {
   lastname: string;
   phone: string;
   role: string;
-  expiresIn: number;
+  // expiresIn: number;
 }
 
 @Injectable({
@@ -41,7 +42,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private cartService: CartService) {
     this.checkAuthStatus();
   }
 
@@ -78,21 +79,35 @@ export class AuthService {
   logout(): Observable<any> {
     // Get the token for the logout request
     const token = this.getToken();
+
+     this.clearAuthData();
+     
+      if (!token) {
+      return of({ message: 'No token found, logged out locally' });
+    }
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    // Attempt to logout from the server
-    return this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers })
-      .pipe(
-        tap(() => this.clearAuthData()),
-        catchError(error => {
-          console.error('Logout error:', error);
-          // Still clear local auth data even if server logout fails
-          this.clearAuthData();
-          return of({ message: 'Logged out locally' });
-        })
-      );
+    return this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers }).pipe(
+      catchError(error => {
+        console.error('Logout error:', error);
+        return of({ message: 'Logged out locally despite server error' });
+      })
+    );
+
+    // // Attempt to logout from the server
+    // return this.http.post(`${this.apiUrl}/auth/logout`, {}, { headers })
+    //   .pipe(
+    //     tap(() => this.clearAuthData()),
+    //     catchError(error => {
+    //       console.error('Logout error:', error);
+    //       // Still clear local auth data even if server logout fails
+    //       this.clearAuthData();
+    //       return of({ message: 'Logged out locally' });
+    //     })
+    //   );
   }
 
   // Clear all authentication data
@@ -101,6 +116,7 @@ export class AuthService {
     localStorage.removeItem(this.userKey);
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+    this.cartService.clearCart();
     this.router.navigate(['/login']);
   }
 
