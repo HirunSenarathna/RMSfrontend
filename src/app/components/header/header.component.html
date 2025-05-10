@@ -20,12 +20,12 @@
       </li>
       <li *ngIf="isLoggedIn" class="dropdown">
         <span class="material-icons">account_circle</span>
-        <span>{{ userName }}</span>
+
         <div class="dropdown-menu">
           <a href="/account">My Account</a>
           <a href="/order-history">Order History</a>
           <a href="/address">Address</a>
-          <a href="/" (click)="logout()">Logout</a>
+          <a (click)="logout()" style="cursor: pointer;">Logout</a>
         </div>
       </li>
       <li><a (click)="openCart()"><span class="material-icons">shopping_cart</span></a></li>

@@ -72,6 +72,8 @@ export class CheckoutComponent {
               phone: user.phone || '',
               email: user.email || ''
             });
+            this.checkoutForm.get('phone')?.disable();
+            this.checkoutForm.get('email')?.disable();
           }
         });
       }
