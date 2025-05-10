@@ -13,7 +13,7 @@ import { CashierSidebarComponent } from './components/cashier/cashier-sidebar/ca
 
 @Component({
   selector: 'app-root',
-  imports: [HeaderComponent, RouterOutlet, FooterComponent, CommonModule, OwnerNavbarComponent, OwnerSidebarComponent,WaiterNavbarComponent,WaiterSidebarComponent,CashierNavbarComponent,CashierSidebarComponent],
+  imports: [HeaderComponent, RouterOutlet, FooterComponent, CommonModule, OwnerNavbarComponent, OwnerSidebarComponent,WaiterNavbarComponent,WaiterSidebarComponent,CashierNavbarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
