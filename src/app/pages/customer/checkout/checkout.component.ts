@@ -10,6 +10,7 @@ import { AuthService } from '../../../services/auth.service'; // Import AuthServ
 import { PaymentService } from '../../../services/payment.service'; // Import PaymentService
 
 
+
 @Component({
   selector: 'app-checkout',
   imports: [CommonModule,FormsModule, ReactiveFormsModule],
@@ -19,16 +20,19 @@ import { PaymentService } from '../../../services/payment.service'; // Import Pa
 export class CheckoutComponent {
   cartItems: CartItem[] = [];
   checkoutForm: FormGroup;
-  selectedPaymentMethod: string = 'cod';
+  selectedPaymentMethod: string = 'CASH';
   orderPlaced: boolean = false;
   isUserLoggedIn: boolean = false;
+  isSubmitting: boolean = false;
 
   constructor(
     private cartService: CartService,
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService, // Inject AuthService
-    private paymentService: PaymentService // Inject PaymentService
+    private paymentService: PaymentService, // Inject PaymentService
+    private orderService: OrderService 
+
   ) {
     // Initialize checkout form with only the required fields
     this.checkoutForm = this.formBuilder.group({
@@ -105,97 +109,203 @@ export class CheckoutComponent {
   }
 
   placeOrder(): void {
-    if (this.checkoutForm.valid) {
-      // Get form and cart data
+    if (this.checkoutForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+
       const orderData = {
         customer: this.checkoutForm.value,
         items: this.cartItems,
         paymentMethod: this.selectedPaymentMethod,
-        total: this.getTotal(),
-        subtotal: this.getSubtotal(),
-        shippingCost: this.getDiscount(),
-        date: new Date(),
-        userId: this.isUserLoggedIn ? this.authService.getCurrentUser: null
+        amount: this.getTotal(),
+        userId: this.isUserLoggedIn ? this.authService.getCurrentUserValue()?.id : null,
+        tableNumber: null,
+        isOnline: true,
+        paymentStatus: 'PENDING',
+        returnUrl: window.location.origin + '/orderConfirmation'
       };
-      
-      if (this.selectedPaymentMethod === 'cod') {
-        // Handle Cash on Delivery
-        this.processOrder(orderData);
-      } else if (this.selectedPaymentMethod === 'gateway') {
-        // Handle Payment Gateway
-        this.processPaymentGateway(orderData);
-      }
+
+      this.orderService.createOrder(orderData).subscribe({
+        next: (response) => {
+          console.log('Order created successfully:', response);
+          this.orderPlaced = true;
+
+          if (this.selectedPaymentMethod === 'CASH') {
+            this.handleCashPayment(response);
+          } else {
+            this.handleCreditCardPayment(response);
+          }
+        },
+        error: (error) => {
+          console.error('Order creation failed:', error);
+          alert('Failed to place order: ' + (error.message || 'Please try again'));
+          this.isSubmitting = false;
+        }
+      });
     } else {
-      // Mark all form fields as touched to show validation errors
       this.markFormGroupTouched(this.checkoutForm);
       alert('Please fill in all required fields correctly before placing your order.');
     }
   }
-  
-  /**
-   * Process the order for Cash on Delivery
-   */
-  processOrder(orderData: any): void {
-    // In a real app, you would send this data to your backend
-    console.log('Order placed:', orderData);
-    
-    // Show success message
-    this.orderPlaced = true;
-    
-    // Clear cart
+
+  private handleCashPayment(orderResponse: any): void {
     this.cartService.clearCart();
-    
-    // Generate random order ID
-    const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-    
-    // Show success message and redirect to confirmation page
     alert('Your order has been placed successfully!');
-    this.router.navigate(['/orderConfirmation'], { 
-      state: { 
-        orderId: orderId,
-        orderData: orderData
-      } 
-    });
-  }
-  
-  /**
-   * Process payment via payment gateway
-   */
-  processPaymentGateway(orderData: any): void {
-    // First, create the order in pending status
-    const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-    orderData.orderId = orderId;
-    orderData.status = 'pending_payment';
-    
-    // Initialize payment gateway
-    this.paymentService.initializePayment(orderData).subscribe({
-      next: (response) => {
-        if (response && response.paymentUrl) {
-          // Redirect to payment gateway
-          window.location.href = response.paymentUrl;
-        } else {
-          alert('Error initializing payment. Please try again.');
-        }
-      },
-      error: (error) => {
-        console.error('Payment initialization failed:', error);
-        alert('Payment initialization failed. Please try again or choose a different payment method.');
+    this.router.navigate(['/orderConfirmation'], {
+      state: {
+        orderId: orderResponse.orderId,
+        orderData: orderResponse
       }
     });
+    this.isSubmitting = false;
   }
-  
+
+  private handleCreditCardPayment(orderResponse: any): void {
+  if (orderResponse.paymentLink) {
+        console.log('Redirecting to payment link:', orderResponse.paymentLink);
+        window.location.href = orderResponse.paymentLink;
+    } else {
+        console.log('No payment link, polling for order:', orderResponse.orderId);
+        this.pollForPaymentLink(orderResponse.orderId);
+    }
+}
+
+private pollForPaymentLink(orderId: number): void {
+    const maxAttempts = 10;
+    let attempts = 0;
+    const interval = setInterval(() => {
+        console.log(`Polling attempt ${attempts + 1} for order ${orderId}`);
+        this.orderService.getOrderById(orderId).subscribe({
+            next: (order) => {
+                if (order.paymentLink ) {
+                    clearInterval(interval);
+                    console.log('Payment link received:', order.paymentLink);
+                    window.location.href = order.paymentLink;
+                } else if (order.paymentStatus === 'FAILED') {
+                    clearInterval(interval);
+                    console.error('Payment initiation failed');
+                    alert('Payment setup failed. Please try again.');
+                    this.isSubmitting = false;
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    console.error('No payment link after max attempts');
+                    alert('Error initializing payment. Please try again.');
+                    this.isSubmitting = false;
+                }
+                attempts++;
+            },
+            error: (error) => {
+                clearInterval(interval);
+                console.error('Polling error:', error);
+                alert('Error retrieving payment link.');
+                this.isSubmitting = false;
+            }
+        });
+    }, 2000); // Poll every 2 seconds
+  }
+
   submitOrder(): void {
     this.placeOrder();
   }
-  
-  // Helper method to mark all controls in a form group as touched
+
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
-
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       }
     });
   }
+
+  // placeOrder(): void {
+  //   if (this.checkoutForm.valid && !this.isSubmitting) {
+  //     this.isSubmitting = true;
+      
+  //     const orderData = {
+  //       customer: this.checkoutForm.value,
+  //       items: this.cartItems,
+  //       paymentMethod: this.selectedPaymentMethod,
+  //       amount: this.getTotal(),
+  //       userId: this.isUserLoggedIn ? this.authService.getCurrentUserValue()?.id : null,
+  //       tableNumber: 1
+  //     };
+
+  //     this.orderService.createOrder(orderData).subscribe({
+  //       next: (response) => {
+  //         console.log('Order created successfully:', response);
+  //         this.orderPlaced = true;
+          
+  //         if (this.selectedPaymentMethod === 'CASH') {
+  //           this.handleCashPayment(response);
+  //         } else {
+  //           this.handleCreditCardPayment(response);
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Order creation failed:', error);
+  //         alert('Failed to place order: ' + (error.message || 'Please try again'));
+  //         this.isSubmitting = false;
+  //       }
+  //     });
+  //   } else {
+  //     this.markFormGroupTouched(this.checkoutForm);
+  //     alert('Please fill in all required fields correctly before placing your order.');
+  //   }
+  // }
+
+  // private handleCashPayment(orderResponse: any): void {
+  //   this.cartService.clearCart();
+  //   alert('Your order has been placed successfully!');
+  //   this.router.navigate(['/orderConfirmation'], {
+  //     state: {
+  //       orderId: orderResponse.orderId,
+  //       orderData: orderResponse
+  //     }
+  //   });
+  //   this.isSubmitting = false;
+  // }
+
+  // private handleCreditCardPayment(orderResponse: any): void {
+  //   console.log('Handling credit card payment:', orderResponse);
+  //   if (orderResponse.paymentLink) {
+  //     console.log('Redirecting to payment link:', orderResponse.paymentLink);
+  //     // If the payment link is directly returned
+  //     window.location.href = orderResponse.paymentLink;
+  //   } else {
+  //     // Otherwise, we need to initialize the payment separately
+  //     const paymentData = {
+  //       orderId: orderResponse.orderId,
+  //       amount: orderResponse.totalAmount,
+  //       returnUrl: window.location.origin + '/orderConfirmation'
+  //     };
+      
+  //     this.paymentService.initializePayment(paymentData).subscribe({
+  //       next: (paymentResponse) => {
+  //         if (paymentResponse.paymentLink) {
+  //           window.location.href = paymentResponse.paymentLink;
+  //         } else {
+  //           alert('Error initializing payment. Please try again.');
+  //           this.isSubmitting = false;
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Payment initialization failed:', error);
+  //         alert('Payment initialization failed. Please try again or choose a different payment method.');
+  //         this.isSubmitting = false;
+  //       }
+  //     });
+  //   }
+  // }
+
+  // submitOrder(): void {
+  //   this.placeOrder();
+  // }
+
+  // private markFormGroupTouched(formGroup: FormGroup) {
+  //   Object.values(formGroup.controls).forEach(control => {
+  //     control.markAsTouched();
+  //     if (control instanceof FormGroup) {
+  //       this.markFormGroupTouched(control);
+  //     }
+  //   });
+  // }
 }

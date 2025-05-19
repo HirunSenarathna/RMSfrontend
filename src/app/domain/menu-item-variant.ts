@@ -5,7 +5,7 @@ export enum Size {
 }
 
 export interface MenuItemVariant {
-    id: number | null;
+    id: number | 0;
     size: Size;
     variant: string;
     price: number;

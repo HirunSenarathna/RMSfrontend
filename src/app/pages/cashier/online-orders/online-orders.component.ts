@@ -8,51 +8,43 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
+import { catchError, throwError } from 'rxjs';
+import { Order } from '../../../domain/pos/Order';
+import { OrderItem } from '../../../domain/pos/OrderItem';
+import { DialogModule } from 'primeng/dialog';
+import { MessageService } from 'primeng/api';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { FormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ToastModule } from 'primeng/toast';
 
-export interface OrderItem {
-  id: number;
-  order_id: number;
-  menu_item_id: number;
-  menu_item_variant_id: number;
-  quantity: number;
-  unit_price: number;
-  subtotal: number;
-  item_name: string;
-  size?: 'SMALL' | 'LARGE';
-  variant?: string;
-  special_instructions?: string;
-}
 
-export interface Order {
-  id: number;
-  customer_name?: string;
-  customer_phone?: string;
-  order_type: 'IN_RESTAURANT' | 'ONLINE';
-  status: 'PENDING' | 'PREPARING' | 'READY' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED';
-  total_amount: number;
-  payment_status: 'PENDING' | 'PAID' | 'REFUNDED';
-  payment_method?: 'CASH' | 'CARD' | 'ONLINE';
-  table_number?: number;
-  special_instructions?: string;
-  created_at: Date;
-  updated_at: Date;
-  items: OrderItem[];
-}
 
 @Component({
   selector: 'app-online-orders',
-  imports: [TabViewModule,CommonModule,ButtonModule,TableModule,TagModule,ToolbarModule],
+  imports: [TabViewModule,CommonModule,ButtonModule,TableModule,TagModule,ToolbarModule,DialogModule,RadioButtonModule,FormsModule,InputNumberModule,ToastModule],
   templateUrl: './online-orders.component.html',
-  styleUrl: './online-orders.component.css'
+  styleUrl: './online-orders.component.css',
+  providers: [MessageService],
 })
 export class OnlineOrdersComponent implements OnInit {
 
   allOnlineOrders: Order[] = [];
   pendingPaymentOrders: Order[] = [];
+  loading: boolean = false;
+  error: string = '';
+  displayDialog = false;
+  selectedOrder: any;
+  displayPaymentDialog = false;
+  selectedOrderForPayment: any = null;
+   paymentMethod: 'CASH' | 'CARD' | 'ONLINE' = 'CASH';
+  cashAmount = 0;
+  changeAmount = 0;
   
   constructor(
     private orderService: OrderService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -60,15 +52,34 @@ export class OnlineOrdersComponent implements OnInit {
   }
 
   loadOnlineOrders(): void {
-    this.orderService.getOnlineOrders().subscribe(
-      (orders) => {
-        // this.allOnlineOrders = orders;
-        // this.pendingPaymentOrders = orders.filter(
-        //   order => order.payment_status === 'PENDING' && order.payment_method === 'CASH'
-        // );
-      },
-      (error) => console.error('Error loading online orders:', error)
-    );
+   this.loading = true;
+    this.error = '';
+
+    this.orderService.getOnlineOrders().pipe(
+      catchError(err => {
+        this.error = 'Failed to load online orders.';
+        console.error('Error loading online orders:', err);
+        this.loading = false;
+        return [];
+      })
+    ).subscribe(orders => {
+      this.allOnlineOrders = orders;
+      this.loading = false;
+    });
+
+    this.orderService.getOnlineUnpaidOrders().pipe(
+      catchError(err => {
+        this.error = 'Failed to load pending payment orders.';
+        console.error('Error loading pending payment orders:', err);
+        this.loading = false;
+        return [];
+      })
+    ).subscribe(orders => {
+      this.pendingPaymentOrders = orders.filter(
+        order => !order.isPaid && order.paymentMethod === 'CASH'
+      );
+      this.loading = false;
+    });
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
@@ -92,14 +103,61 @@ export class OnlineOrdersComponent implements OnInit {
     return 'info';
 }
   
-  viewOrderDetails(order: Order): void {
-    // Navigate to order details or show modal
+
+  showOrderDetails(order: any) {
+    
+    this.selectedOrder = order;
+    this.displayDialog = true;
+  }
+
+    openPaymentDialog(order: any) {
+    this.selectedOrderForPayment = order;
+    this.paymentMethod = 'CASH';
+    this.cashAmount = order.totalAmount 
+    this.calculateChange();
+    this.displayPaymentDialog = true;
+  }
+
+  closePaymentDialog() {
+    this.displayPaymentDialog = false;
+    this.selectedOrderForPayment = null;
+  }
+
+  calculateChange() {
+    if (this.selectedOrderForPayment) {
+      // const totalWithTax = this.selectedOrderForPayment.totalAmount 
+      this.changeAmount = this.cashAmount - this.selectedOrderForPayment.totalAmount;
+    }
+  }
+
+  confirmPayment() {
+  
+     const paymentDetails = {
+      orderId: this.selectedOrderForPayment.id,
+      amount: this.selectedOrderForPayment.totalAmount,
+      paymentMethod: this.paymentMethod,
+      cashReceived: this.cashAmount,
+      change: this.changeAmount,
+      isOnline: false
+    };
+
+     this.orderService.processInPersonPayment(this.selectedOrderForPayment.id, paymentDetails).pipe(
+    catchError(err => {
+      this.error = err.message || `Failed to process ${this.paymentMethod} payment.`;
+      this.loading = false;
+      return throwError(() => err);
+    })
+  ).subscribe(() => {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Payment Processed',
+      detail: `Payment of Rs. ${(this.selectedOrderForPayment.totalAmount).toFixed(2)} completed successfully`
+    });
+    this.closePaymentDialog();
+    this.refreshOrders();
+  });
   }
   
-  processPayment(order: Order): void {
-    // Navigate to POS with order loaded for payment
-    this.router.navigate(['/pos'], { queryParams: { orderId: order.id } });
-  }
   
   refreshOrders(): void {
     this.loadOnlineOrders();

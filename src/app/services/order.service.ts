@@ -3,177 +3,175 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Order } from '../domain/pos/Order';
+import { CartItem } from '../domain/cartItem';
+import { AuthService } from './auth.service';
+import { HttpHeaders } from '@angular/common/http';
+import { catchError, tap, throwError } from 'rxjs';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
 
-  private apiUrl = 'http://localhost:8000/customer'; 
+  private apiUrl = 'http://localhost:8091/api/orders';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  orderItems = [
-    { name: 'Coconut Water', quantity: 1, price: 2.99, img: 'assets/drinks1.jpg' },
-    { name: 'Fish Curry with Coconut Rice', quantity: 1, price: 13.49, img: 'assets/image1.jpg' }
-  ];
+  createOrder(orderData: any): Observable<any> {
+    console.log('Original Order Data:', orderData);
+    const headers = this.getAuthHeaders();
+    
+    // Transform cart items to match the backend expected format
+    const orderItems = orderData.items.map((item: CartItem) => ({
+      menuItemId: item.id,
+      menuItemVariantId: item.variant?.id || item.variant?.id || 0,
+      quantity: item.quantity,
+      specialInstructions: item.specialInstructions || ''
+    }));
 
-  getOrdersData() {
-    return [
-      {
-          orderId: 'ORD1001',
-          orderDate: '2025-03-24',
-          orderTime: '14:30',
-          pickupDate: '2025-03-25',
-          pickupTime: '16:00',
-          customer: 'John Doe',
-          paymentMethod: 'Credit Card',
-          itemName: 'Fish Curry with Coconut Rice',
-          quantity: 2,
-          unitPrice: 13.49,
-          total: 26.98,
-          server: 'Alice',
-          orderType: 'Dine-In',
-          status: 'Accepted'
-      },
-      {
-          orderId: 'ORD1002',
-          orderDate: '2025-03-23',
-          orderTime: '10:15',
-          pickupDate: '2025-03-24',
-          pickupTime: '12:00',
-          customer: 'Jane Smith',
-          paymentMethod: 'Cash',
-          itemName: 'Coconut Water',
-          quantity: 1,
-          unitPrice: 2.99,
-          total: 2.99,
-          server: 'Bob',
-          orderType: 'Takeaway',
-          status: 'Rejected'
-      }
-  ];
-  }
+    // Create order request object to match backend expectations
+    const orderRequest = {
+      customerId: orderData.userId || null,
+      waiterId: orderData.waiterId || null,
+      tableNumber: orderData.tableNumber || null,
+      specialInstructions: orderData.customer?.orderNotes || '',
+      paymentMethod: orderData.paymentMethod === 'CASH' ? 'CASH' : 'CREDIT_CARD',
+      paymentStatus: orderData.paymentStatus || 'PENDING',
+      returnUrl: window.location.origin + '/orderConfirmation',
+      items: orderItems,
+      online: orderData.isOnline || false,
+    };
 
-  getOrders() {
-    return Promise.resolve(this.getOrdersData());
-  }
-
-  getSubtotal(): number {
-    return this.orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }
-
-  getShippingCost(): number {
-    return 15.00;
-  }
-
-  removeFromCart(index: number) {
-    this.orderItems.splice(index, 1);
-  }
-
-  getTotal(): number {
-    return this.getSubtotal() + this.getShippingCost();
-  }
-
-  getLargeOrders(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/orders/large`);
-  }
-
- 
-
-  // getLargeOrdersByDateRange(startDate: string, endDate: string): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.apiUrl}/orders/large`, {
-  //     params: {
-  //       start: startDate,
-  //       end: endDate
-  //     }
-  //   }).pipe(
-  //     map(orders => orders.map(order => ({
-  //       ...order,
-  //       orderDate: new Date(order.orderDate)
-  //     })))
-  //   );
-  // }
-
-  getLargeOrdersByDateRange(startDate: string, endDate: string): Observable<any[]> {
-    const hardcodedOrders = [
-      {
-        orderDate: '2025-03-20',
-        tableNumber: 5,
-        customerName: 'Michael Scott',
-        totalAmount: 150.00,
-        items: [
-          { name: 'Pizza', quantity: 2, price: 25.00 },
-          { name: 'Pasta', quantity: 1, price: 20.00 }
-        ]
-      },
-      {
-        orderDate: '2025-03-22',
-        tableNumber: 3,
-        customerName: 'Pam Beesly',
-        totalAmount: 220.50,
-        items: [
-          { name: 'Steak', quantity: 2, price: 60.00 },
-          { name: 'Wine', quantity: 1, price: 50.00 },
-          { name: 'Salad', quantity: 2, price: 25.00 }
-        ]
-      }
-    ];
-  
-    return new Observable(observer => {
-      observer.next(hardcodedOrders);
-      observer.complete();
-    });
-  }
-
-
-   getActiveOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/active`);
-  }
-
-  getPendingOnlineOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/online/pending`);
+    console.log('Formatted Order Request:', orderRequest);
+    
+    return this.http.post<any>(`${this.apiUrl}`, orderRequest, { headers })
+      .pipe(
+        tap(response => console.log('Order creation successful:', response)),
+        catchError(error => {
+          console.error('Order creation error:', error);
+          return throwError(() => new Error(error.error?.message || 'Failed to create order. Please try again.'));
+        })
+      );
   }
 
   getOrderById(id: number): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      catchError(error => {
+        console.error(`Error fetching order ${id}:`, error);
+        return throwError(() => new Error('Failed to fetch order details'));
+      })
+    );
   }
 
-  createOrder(order: Order): Observable<Order> {
-    return this.http.post<Order>(this.apiUrl, order);
+  getActiveOrders(): Observable<Order[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(`${this.apiUrl}/active`, { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching active orders:', error);
+        return throwError(() => new Error('Failed to fetch active orders'));
+      })
+    );
+  }
+  
+
+ getPendingOnlineOrders(): Observable<Order[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(`${this.apiUrl}/unpaid?online=true`, { headers }).pipe(
+      catchError((error) => {
+        console.error('Error fetching pending online orders:', error);
+        return throwError(() => new Error('Failed to fetch pending online orders'));
+      })
+    );
   }
 
-  updateOrder(order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${order.id}`, order);
+  processInPersonPayment(orderId: number, paymentDetails: any): Observable<Order> {
+    console.log('Processing in-person payment for order:', orderId, paymentDetails);
+    const headers = this.getAuthHeaders();
+    const paymentRequest = {
+      orderId: orderId,
+      
+      amount: paymentDetails.amount,
+      method: paymentDetails.paymentMethod || 'CASH', 
+      isOnline: false,
+      processedBy: this.authService.getCurrentUserValue()?.id || null,
+    };
+
+    return this.http.post<Order>(`${this.apiUrl}/${orderId}/pay/in-person`, paymentRequest, { headers }).pipe(
+      tap((response) => console.log('In-person payment processed:', response)),
+      catchError((error) => {
+        console.error('Error processing in-person payment:', error);
+        return throwError(() => new Error(error.error?.message || 'Failed to process payment.'));
+      })
+    );
   }
 
   getOrderHistory(filters: any): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/history`, { params: filters });
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(`${this.apiUrl}/history`, { headers, params: filters }).pipe(
+      catchError(error => {
+        console.error('Error fetching order history:', error);
+        return throwError(() => new Error('Failed to fetch order history'));
+      })
+    );
   }
-  
-  //
-
- 
 
   getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.apiUrl);
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(this.apiUrl, { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching all orders:', error);
+        return throwError(() => new Error('Failed to fetch orders'));
+      })
+    );
   }
 
-  getPendingOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/pending`);
+  getOnlineUnpaidOrders(): Observable<Order[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(`${this.apiUrl}/online/unpaid`, { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching pending orders:', error);
+        return throwError(() => new Error('Failed to fetch pending orders'));
+      })
+    );
   }
-
-  
 
   updateOrderStatus(id: number, status: string): Observable<Order> {
-    return this.http.patch<Order>(`${this.apiUrl}/${id}/status`, { status });
+    const headers = this.getAuthHeaders();
+    return this.http.patch<Order>(`${this.apiUrl}/${id}/status`, { status }, { headers }).pipe(
+      catchError(error => {
+        console.error(`Error updating order ${id} status:`, error);
+        return throwError(() => new Error('Failed to update order status'));
+      })
+    );
   }
 
   getOnlineOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/online`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(`${this.apiUrl}/online`, { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching online orders:', error);
+        return throwError(() => new Error('Failed to fetch online orders'));
+      })
+    );
   }
 
   getInRestaurantOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/in-restaurant`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<Order[]>(`${this.apiUrl}/in-restaurant`, { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching in-restaurant orders:', error);
+        return throwError(() => new Error('Failed to fetch in-restaurant orders'));
+      })
+    );
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
   }
 }
