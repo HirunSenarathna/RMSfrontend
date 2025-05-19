@@ -7,4 +7,6 @@ export interface Payment {
     transaction_id?: string;
     created_at: Date;
     cashier_id?: number;
+    paymentlink?: string;
+
   }

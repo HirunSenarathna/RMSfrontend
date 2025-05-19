@@ -15,7 +15,7 @@ import { MenuCategory } from './menu-category';
 // }
 
 export interface MenuItem {
-    id: number | null;
+    id: number | 0;
     name: string;
     description: string;
     categoryId: number | null;

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OrderService } from '../../../services/order.service';
 
 @Component({
   selector: 'app-order-confirmation',
@@ -10,23 +11,46 @@ import { CommonModule } from '@angular/common';
   styleUrl: './order-confirmation.component.css'
 })
 export class OrderConfirmationComponent implements OnInit {
+
   orderId: string = '';
   orderData: any = null;
+  isLoading: boolean = true;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private route: ActivatedRoute, private orderService: OrderService) {
     // Get order data from router navigation state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.orderId = navigation.extras.state['orderId'];
       this.orderData = navigation.extras.state['orderData'];
+      this.isLoading = false;
     }
   }
 
   ngOnInit(): void {
-    // If no order data is available, redirect to home
-    if (!this.orderData) {
-      this.router.navigate(['/']);
+   if (!this.orderData) {
+      this.route.queryParamMap.subscribe(params => {
+        const orderId = params.get('orderId');
+        if (orderId) {
+          this.orderId = orderId;
+          this.fetchOrder(orderId);
+        } else {
+          this.router.navigate(['/']);
+        }
+      });
     }
+  }
+
+    fetchOrder(orderId: string) {
+    this.orderService.getOrderById(+orderId).subscribe({
+      next: (order) => {
+        this.orderData = order;
+        this.isLoading = false;
+      },
+      error: () => {
+        alert('Failed to load order details.');
+        this.router.navigate(['/']);
+      }
+    });
   }
 
   continueShopping(): void {

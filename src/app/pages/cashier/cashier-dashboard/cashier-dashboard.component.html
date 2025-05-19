@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="pos-container">
   <!-- Header/Navigation -->
   <!-- <p-toolbar>
@@ -11,6 +13,16 @@
       <span class="pos-title">Restaurant POS</span>
     </div>
   </p-toolbar> -->
+
+  <!-- Error message display -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="loading-spinner">
+    <p>Loading...</p>
+  </div>
 
   <div class="pos-content">
     <!-- Menu Selection Section -->
@@ -26,6 +38,9 @@
             <span class="category-name">{{category.name}}</span>
           </div>
         </div>
+        <div *ngIf="categories.length === 0 && !loading" class="empty-message">
+          No categories available
+        </div>
       </div>
 
       <!-- Menu Items -->
@@ -39,12 +54,239 @@
                (click)="item.available && selectMenuItem(item)">
             <div class="item-name">{{item.name}}</div>
             <div class="item-description">{{item.description}}</div>
+            <div *ngIf="!item.available" class="unavailable-overlay">Unavailable</div>
           </div>
+        </div>
+        <div *ngIf="menuItems.length === 0 && selectedCategory && !loading" class="empty-message">
+          No items available in this category
         </div>
       </div>
 
       <!-- Variants -->
       <div class="item-variants" *ngIf="selectedMenuItem">
+        <h3>{{selectedMenuItem.name}} - Variants</h3>
+        <div class="variants-grid">
+          <div *ngFor="let variant of selectedMenuItem.variants" 
+               class="variant-card" 
+               [class.selected]="selectedVariant?.id === variant.id"
+               [class.unavailable]="!variant.available || variant.stockQuantity <= 0"
+               (click)="variant.available && variant.stockQuantity > 0 && selectVariant(variant)">
+            <div class="variant-details">
+              <span class="variant-size" *ngIf="variant.size">{{variant.size}}</span>
+              <span class="variant-name" *ngIf="variant.variant">{{variant.variant}}</span>
+              <span class="variant-price">Rs. {{variant.price.toFixed(2)}}</span>
+            </div>
+            <div class="stock-info" *ngIf="variant.stockQuantity > 0">Stock: {{variant.stockQuantity}}</div>
+            <div class="stock-info out-of-stock" *ngIf="variant.stockQuantity <= 0">Out of stock</div>
+          </div>
+        </div>
+        <div *ngIf="selectedMenuItem.variants && selectedMenuItem.variants.length === 0 && !loading" class="empty-message">
+          No variants available for this item
+        </div>
+
+        <!-- Add to Order Section -->
+        <div class="add-to-order" *ngIf="selectedVariant">
+          <div class="quantity-control">
+            <p-inputNumber [(ngModel)]="quantity" [showButtons]="true" buttonLayout="horizontal" 
+                          [min]="1" [max]="selectedVariant.stockQuantity" [step]="1" decrementButtonClass="p-button-danger" 
+                          incrementButtonClass="p-button-success">
+            </p-inputNumber>
+          </div>
+          <p-button label="Add to Order" icon="pi pi-plus" styleClass="p-button-success" 
+                   (onClick)="addToOrder()"></p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Section -->
+    <div class="order-section">
+      <h3>Current Order</h3>
+      
+      <p-table [value]="currentOrder.items" styleClass="order-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Item</th>
+            <th>Variant</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Subtotal</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item let-i="rowIndex">
+          <tr>
+            <td>{{item.item_name}}</td>
+            <td>
+              <span *ngIf="item.size">{{item.size}}</span>
+              <span *ngIf="item.variant"> - {{item.variant}}</span>
+            </td>
+            <td>Rs. {{item.unitPrice.toFixed(2)}}</td>
+            <td>
+              <p-inputNumber [(ngModel)]="item.quantity" 
+                            (onInput)="updateItemQuantity(i, item.quantity)"
+                            [showButtons]="true" 
+                            [min]="1" [max]="100" [size]="'small'">
+              </p-inputNumber>
+            </td>
+            <td>Rs. {{item.subTotal.toFixed(2)}}</td>
+            <td>
+              <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm"
+                     (click)="removeItem(i)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr>
+            <td colspan="4" class="text-right">Total:</td>
+             <td colspan="2" class="total-amount">Rs. {{currentOrder.totalAmount.toFixed(2)}}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="empty-message">No items added to order</td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
+      <div class="order-actions">
+        <p-button label="Cancel Order" icon="pi pi-times" styleClass="p-button-danger mr-2" 
+                 [disabled]="currentOrder.items.length === 0"
+                 (onClick)="cancelOrder()"></p-button>
+        <p-button label="Process Payment" icon="pi pi-check" styleClass="p-button-success" 
+                 [disabled]="currentOrder.items.length === 0"
+                 (onClick)="openPaymentDialog()"></p-button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Dialog -->
+<p-dialog header="Payment" [(visible)]="paymentDialog" [modal]="true" [style]="{width: '450px'}" 
+          [closable]="false" [draggable]="false">
+  <div class="payment-dialog">
+    <div class="payment-total">
+      <h3>Total Amount: Rs. {{currentOrder.totalAmount.toFixed(2)}}</h3>
+    </div>
+    
+    <div class="payment-method">
+      <h4>Select Payment Method</h4>
+      <div class="p-field-radiobutton">
+        <p-radioButton name="paymentMethod" value="CASH" [(ngModel)]="paymentMethod" inputId="paymentCash"></p-radioButton>
+        <label for="paymentCash" class="p-ml-2">Cash</label>
+      </div>
+      
+      <div class="p-field-radiobutton">
+        <p-radioButton name="paymentMethod" value="CARD" [(ngModel)]="paymentMethod" inputId="paymentCard"></p-radioButton>
+        <label for="paymentCard" class="p-ml-2">Card</label>
+      </div>
+    </div>
+    
+    <div class="cash-payment" *ngIf="paymentMethod === 'CASH'">
+      <div class="p-field">
+        <label for="cashAmount">Cash Amount</label>
+        <p-inputNumber id="cashAmount" [(ngModel)]="cashAmount" mode="currency" currency="LKR" 
+                      (onInput)="calculateChange()" [min]="0" [minFractionDigits]="2">
+        </p-inputNumber>
+      </div>
+      
+      <div class="p-field change-amount">
+        <label>Change</label>
+        <div class="change-value" [class.negative]="changeAmount < 0">
+          Rs. {{changeAmount.toFixed(2)}}
+        </div>
+      </div>
+      
+      <!-- Quick cash buttons -->
+      <div class="quick-cash">
+        <button pButton type="button" label="Rs. 500" class="p-button-outlined p-mr-2" 
+                (click)="cashAmount = 500; calculateChange()"></button>
+        <button pButton type="button" label="Rs. 1000" class="p-button-outlined p-mr-2" 
+                (click)="cashAmount = 1000; calculateChange()"></button>
+        <button pButton type="button" label="Rs. 5000" class="p-button-outlined" 
+                (click)="cashAmount = 5000; calculateChange()"></button>
+      </div>
+    </div>
+    
+    <div class="card-payment" *ngIf="paymentMethod === 'CARD'">
+      <div class="p-field">
+        <label>Amount to Charge</label>
+        <div class="card-amount">Rs. {{currentOrder.totalAmount.toFixed(2)}}</div>
+      </div>
+      
+      <div class="card-notice">
+        <p>Please swipe the card or use the card terminal to process payment.</p>
+      </div>
+    </div>
+    
+    <div class="payment-actions">
+      <p-button label="Cancel" icon="pi pi-times" styleClass="p-button-text p-mr-2" 
+              (onClick)="paymentDialog = false"></p-button>
+      <p-button label="Complete Payment" icon="pi pi-check" styleClass="p-button-success" 
+              [disabled]="paymentMethod === 'CASH' && changeAmount < 0 || loading"
+              (onClick)="processPayment()"></p-button>
+    </div>
+    
+    <!-- Error message display in dialog -->
+    <div *ngIf="error" class="error-message">
+      <p>{{ error }}</p>
+    </div>
+    
+    <!-- Loading indicator in dialog -->
+    <div *ngIf="loading" class="loading-spinner">
+      <p>Processing payment...</p>
+    </div>
+  </div>
+</p-dialog>
+
+
+
+<!-- <div class="pos-container"> -->
+  <!-- Header/Navigation -->
+  <!-- <p-toolbar>
+    <div class="p-toolbar-group-left">
+      <p-button label="New Order" icon="pi pi-plus" styleClass="mr-2" (onClick)="cancelOrder()"></p-button>
+      <p-button label="Online Orders" icon="pi pi-shopping-cart" styleClass="p-button-info mr-2" routerLink="/cashier/onlineOrders"></p-button>
+      <p-button label="View Orders" icon="pi pi-list" styleClass="p-button-secondary mr-2" routerLink="/view-orders"></p-button>
+      <p-button label="View Payments" icon="pi pi-dollar" styleClass="p-button-secondary" routerLink="/view-payments"></p-button>
+    </div>
+    <div class="p-toolbar-group-right">
+      <span class="pos-title">Restaurant POS</span>
+    </div>
+  </p-toolbar> -->
+
+  <!-- <div class="pos-content"> -->
+    <!-- Menu Selection Section -->
+    <!-- <div class="menu-section"> -->
+      <!-- Categories -->
+      <!-- <div class="menu-categories">
+        <h3>Categories</h3>
+        <div class="categories-grid">
+          <div *ngFor="let category of categories" 
+               class="category-card" 
+               [class.selected]="selectedCategory?.id === category.id"
+               (click)="selectCategory(category)">
+            <span class="category-name">{{category.name}}</span>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- Menu Items -->
+      <!-- <div class="menu-items">
+        <h3>Menu Items</h3>
+        <div class="items-grid">
+          <div *ngFor="let item of menuItems" 
+               class="item-card" 
+               [class.selected]="selectedMenuItem?.id === item.id"
+               [class.unavailable]="!item.available"
+               (click)="item.available && selectMenuItem(item)">
+            <div class="item-name">{{item.name}}</div>
+            <div class="item-description">{{item.description}}</div>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- Variants -->
+      <!-- <div class="item-variants" *ngIf="selectedMenuItem">
         <h3>{{selectedMenuItem.name}} - Variants</h3>
         <div class="variants-grid">
           <div *ngFor="let variant of selectedMenuItem.variants" 
@@ -60,10 +302,10 @@
             <div class="stock-info" *ngIf="variant.stock_quantity > 0">Stock: {{variant.stock_quantity}}</div>
             <div class="stock-info out-of-stock" *ngIf="variant.stock_quantity <= 0">Out of stock</div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Add to Order Section -->
-        <div class="add-to-order" *ngIf="selectedVariant">
+        <!-- <div class="add-to-order" *ngIf="selectedVariant">
           <div class="quantity-control">
             <p-inputNumber [(ngModel)]="quantity" [showButtons]="true" buttonLayout="horizontal" 
                           [min]="1" [max]="100" [step]="1" decrementButtonClass="p-button-danger" 
@@ -72,12 +314,12 @@
           </div>
           <p-button label="Add to Order" icon="pi pi-plus" styleClass="p-button-success" 
                    (onClick)="addToOrder()"></p-button>
-        </div>
-      </div>
-    </div>
+        </div> -->
+      <!-- </div>
+    </div> -->
 
     <!-- Order Section -->
-    <div class="order-section">
+    <!-- <div class="order-section">
       <h3>Current Order</h3>
       
       <p-table [value]="currentOrder.items" styleClass="order-table">
@@ -136,10 +378,10 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- Payment Dialog -->
-<p-dialog header="Payment" [(visible)]="paymentDialog" [modal]="true" [style]="{width: '450px'}" 
+<!-- <p-dialog header="Payment" [(visible)]="paymentDialog" [modal]="true" [style]="{width: '450px'}" 
           [closable]="false" [draggable]="false">
   <div class="payment-dialog">
     <div class="payment-total">
@@ -172,10 +414,10 @@
         <div class="change-value" [class.negative]="changeAmount < 0">
           Rs. {{changeAmount.toFixed(2)}}
         </div>
-      </div>
+      </div> -->
       
       <!-- Quick cash buttons -->
-      <div class="quick-cash">
+      <!-- <div class="quick-cash">
         <button pButton type="button" label="Rs. 500" class="p-button-outlined p-mr-2" 
                 (click)="cashAmount = 500; calculateChange()"></button>
         <button pButton type="button" label="Rs. 1000" class="p-button-outlined p-mr-2" 
@@ -204,4 +446,4 @@
                (onClick)="processPayment()"></p-button>
     </div>
   </div>
-</p-dialog>
+</p-dialog> -->

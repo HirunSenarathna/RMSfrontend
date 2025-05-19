@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="online-orders-container">
     <p-toolbar>
       <div class="p-toolbar-group-left">
@@ -27,18 +29,18 @@
             <ng-template pTemplate="body" let-order>
               <tr>
                 <td>{{order.id}}</td>
-                <td>{{order.customer_name}}</td>
-                <td>Rs. {{order.total_amount.toFixed(2)}}</td>
-                <td>{{order.payment_method}}</td>
+                <td>{{order.customerName}}</td>
+                <td>Rs. {{order.totalAmount.toFixed(2)}}</td>
+                <td>{{order.paymentMethod}}</td>
                 <td>
-                  <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
+                  <p-tag [value]="order.orderStatus" [severity]="getStatusSeverity(order.status)"></p-tag>
                 </td>
-                <td>{{order.created_at | date:'short'}}</td>
+                <td>{{order.orderTime | date:'short'}}</td>
                 <td>
                   <button pButton icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm p-mr-2"
-                         pTooltip="View Details"></button>
+                         pTooltip="View Details" (click)="showOrderDetails(order)"></button>
                   <button pButton icon="pi pi-dollar" class="p-button-rounded p-button-success p-button-sm"
-                         pTooltip="Process Payment"></button>
+                         pTooltip="Process Payment" (click)="openPaymentDialog(order)"></button>
                 </td>
               </tr>
             </ng-template>
@@ -61,18 +63,18 @@
             <ng-template pTemplate="body" let-order>
               <tr>
                 <td>{{order.id}}</td>
-                <td>{{order.customer_name}}</td>
-                <td>Rs. {{order.total_amount.toFixed(2)}}</td>
+                <td>{{order.customerName}}</td>
+                <td>Rs. {{order.totalAmount.toFixed(2)}}</td>
                 <td>
-                  <p-tag [value]="order.payment_status" [severity]="getPaymentStatusSeverity(order.payment_status)"></p-tag>
+                  <p-tag [value]="order.paymentMethod" [severity]="getPaymentStatusSeverity(order.payment_status)"></p-tag>
                 </td>
                 <td>
-                  <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
+                  <p-tag [value]="order.orderStatus" [severity]="getStatusSeverity(order.status)"></p-tag>
                 </td>
-                <td>{{order.created_at | date:'short'}}</td>
+                <td>{{order.orderTime | date:'short'}}</td>
                 <td>
                   <button pButton icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm"
-                         pTooltip="View Details"></button>
+                         pTooltip="View Details" (click)="showOrderDetails(order)" ></button>    
                 </td>
               </tr>
             </ng-template>
@@ -80,4 +82,109 @@
         </p-tabPanel>
       </p-tabView>
     </div>
+
+    <p-dialog header="Order Details" [(visible)]="displayDialog" [style]="{width: '50vw'}" [modal]="true">
+  <div *ngIf="selectedOrder">
+    <div class="p-grid">
+      <div class="p-col-6">
+        <h4>Order Information</h4>
+        <p><strong>Order #:</strong> {{selectedOrder.id}}</p>
+        <p><strong>Customer:</strong> {{selectedOrder.customerName}}</p>
+        <p><strong>Date:</strong> {{selectedOrder.orderTime | date:'medium'}}</p>
+        <p><strong>Status:</strong> 
+          <p-tag [value]="selectedOrder.orderStatus" [severity]="getStatusSeverity(selectedOrder.status)"></p-tag>
+        </p>
+      </div>
+      <div class="p-col-6">
+        <h4>Payment Information</h4>
+        <p><strong>Total:</strong> Rs. {{selectedOrder.totalAmount.toFixed(2)}}</p>
+        <p><strong>Payment Method:</strong> {{selectedOrder.paymentMethod}}</p>
+        <p><strong>Payment Status:</strong> 
+          <p-tag [value]="selectedOrder.paymentMethod" [severity]="getPaymentStatusSeverity(selectedOrder.paymentStatus)"></p-tag>
+        </p>
+      </div>
+    </div>
+    
+    <h4>Order Items</h4>
+    <p-table [value]="selectedOrder.items" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{item.menuItemName}} ({{item.size}})</td>
+          <td>{{item.quantity}}</td>
+          <td>Rs. {{item.unitPrice.toFixed(2)}}</td>
+          <td>Rs. {{(item.unitPrice * item.quantity).toFixed(2)}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Close" (click)="displayDialog = false" icon="pi pi-times"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Process Payment" [(visible)]="displayPaymentDialog" [style]="{width: '50vw'}" [modal]="true">
+  <div *ngIf="selectedOrderForPayment">
+    <div class="p-grid">
+      <div class="p-col-6">
+        <h4>Order Information</h4>
+        <p><strong>Order #:</strong> {{selectedOrderForPayment.id}}</p>
+        <p><strong>Customer:</strong> {{selectedOrderForPayment.customerName || 'N/A'}}</p>
+        <p><strong>Date:</strong> {{selectedOrderForPayment.orderTime | date:'medium'}}</p>
+      </div>
+      <div class="p-col-6">
+        <h4>Payment Summary</h4>
+        <p><strong>Subtotal:</strong> Rs. {{selectedOrderForPayment.totalAmount.toFixed(2)}}</p>
+        <!-- <p><strong>Tax:</strong> Rs. {{(selectedOrderForPayment.totalAmount * 0.12).toFixed(2)}}</p> -->
+        <p><strong>Total:</strong> Rs. {{(selectedOrderForPayment.totalAmount ).toFixed(2)}}</p>
+      </div>
+    </div>
+
+    <div class="payment-methods">
+      <h4>Select Payment Method</h4>
+      <div class="p-field-radiobutton">
+        <p-radioButton name="paymentMethod" value="CASH" [(ngModel)]="paymentMethod" inputId="paymentCash"></p-radioButton>
+        <label for="paymentCash" class="p-ml-2">Cash</label>
+      </div>
+      
+      <div class="p-field-radiobutton">
+        <p-radioButton name="paymentMethod" value="CARD" [(ngModel)]="paymentMethod" inputId="paymentCard"></p-radioButton>
+        <label for="paymentCard" class="p-ml-2">Card</label>
+      </div>
+      
+    </div>
+
+    <div class="cash-payment" *ngIf="paymentMethod === 'CASH'">
+      <div class="p-field">
+        <label for="cashAmount">Amount Received</label>
+        <p-inputNumber id="cashAmount" [(ngModel)]="cashAmount" mode="currency" currency="LKR" 
+                      (onInput)="calculateChange()" [min]="0" [minFractionDigits]="2">
+        </p-inputNumber>
+      </div>
+      
+      <div class="p-field change-amount">
+        <label>Change</label>
+        <div class="change-value" [class.negative]="changeAmount < 0">
+          Rs. {{changeAmount.toFixed(2)}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" icon="pi pi-times" (click)="closePaymentDialog()" styleClass="p-button-text"></p-button>
+    <p-button label="Confirm Payment" icon="pi pi-check" (click)="confirmPayment()" 
+              [disabled]="paymentMethod === 'CASH' && changeAmount < 0" styleClass="p-button-success"></p-button>
+  </ng-template>
+</p-dialog>
+    
+  </div>
+
+  

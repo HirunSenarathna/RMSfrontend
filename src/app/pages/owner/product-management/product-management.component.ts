@@ -143,7 +143,7 @@ export class ProductManagementComponent implements OnInit {
 
   emptyMenuItem(): MenuItem {
     return {
-      id: null,
+      id: 0,
       name: '',
       description: '',
       categoryId: null,
@@ -157,7 +157,7 @@ export class ProductManagementComponent implements OnInit {
 
   emptyVariant(): MenuItemVariant {
     return {
-      id: null,
+      id: 0,
       size: Size.MEDIUM,
       variant: '',
       price: 0,

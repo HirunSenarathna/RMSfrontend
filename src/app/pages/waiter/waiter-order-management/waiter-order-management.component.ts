@@ -67,10 +67,10 @@ export class WaiterOrderManagementComponent implements OnInit {
 
   loadOrders() {
     
-      this.orderService.getOrders().then(orders => {
-          this.orders = orders;
-      }
-      );
+      // this.orderService.getOrdersB().then(orders => {
+      //     this.orders = orders;
+      // }
+      // );
   
       this.statuses = [
           { label: 'Pending', value: 'Pending' },

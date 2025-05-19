@@ -71,27 +71,29 @@
     <div class="payment">
       <h2>Payment Method</h2>
       <div class="payment-methods">
-        <div class="payment-method">
-          <input type="radio" id="cod" name="paymentMethod" value="cod" [(ngModel)]="selectedPaymentMethod" checked>
-          <label for="cod">
-            <strong>Cash on delivery</strong>
-            <p>Pay with cash upon delivery.</p>
-          </label>
-        </div>
-        
-        <div class="payment-method">
-          <input type="radio" id="gateway" name="paymentMethod" value="gateway" [(ngModel)]="selectedPaymentMethod">
-          <label for="gateway">
+
+         <div class="payment-method">
+          <input type="radio" id="gateway" name="paymentMethod" value="CREDIT_CARD" [(ngModel)]="selectedPaymentMethod" checked>
+          <label for="CREDIT_CARD">
             <strong>Online Payment</strong>
             <p>Pay securely via our payment gateway.</p>
           </label>
         </div>
+
+        <div class="payment-method">
+          <input type="radio" id="cod" name="paymentMethod" value="CASH" [(ngModel)]="selectedPaymentMethod" >
+          <label for="CASH">
+            <strong>Cash on delivery</strong>
+            <p>Pay with cash </p>
+          </label>
+        </div>
+        
       </div>
       
       <p class="privacy-note">Your personal data will be used to process your order.</p>
       
-      <button class="pay-button" (click)="placeOrder()" [disabled]="!checkoutForm.valid">
-        {{ selectedPaymentMethod === 'cod' ? 'Place Order' : 'Proceed to Payment' }}
+      <button class="pay-button" (click)="placeOrder()">
+        {{ selectedPaymentMethod === 'gateway' ? 'Proceed to Payment' : 'Place Order ' }}
       </button>
     </div>
   </div>

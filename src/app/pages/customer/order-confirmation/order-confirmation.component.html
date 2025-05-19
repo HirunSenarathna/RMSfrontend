@@ -14,22 +14,22 @@
       </div>
       <div class="info-item">
         <h3>Date</h3>
-        <p>{{ orderData.date | date:'medium' }}</p>
+        <p>{{ orderData?.orderTime | date:'medium' }}</p>
       </div>
       <div class="info-item">
         <h3>Total</h3>
-        <p>{{ orderData.total | currency }}</p>
+        <p>{{ orderData?.totalAmount | currency }}</p>
       </div>
       <div class="info-item">
         <h3>Payment Method</h3>
-        <p>{{ orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card' }}</p>
+        <p>{{ orderData?.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit/Debit Card' }}</p>
       </div>
     </div>
     
     <div class="order-details">
       <h2>Order Details</h2>
       
-      <div class="order-summary">
+      <!-- <div class="order-summary">
         <table>
           <thead>
             <tr>
@@ -55,21 +55,11 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </div> -->
       
       <div class="customer-details">
-        <div class="address-column">
-          <h3>Shipping Address</h3>
-          <address>
-            {{ orderData.customer.firstName }} {{ orderData.customer.lastName }}<br>
-            {{ orderData.customer.address }}<br>
-            {{ orderData.customer.city }}<br>
-            <span *ngIf="orderData.customer.district">{{ orderData.customer.district }}<br></span>
-            Phone: {{ orderData.customer.phone }}<br>
-            Email: {{ orderData.customer.email }}
-          </address>
-        </div>
-        
+        <!-- <div class="address-column">
+  
         <div class="address-column" *ngIf="orderData.customer.differentAddress">
           <h3>Billing Address</h3>
           <address>
@@ -80,7 +70,7 @@
             Email: {{ orderData.customer.email }}
           </address>
         </div>
-      </div>
+      </div> -->
     </div>
     
     <div class="confirmation-actions">

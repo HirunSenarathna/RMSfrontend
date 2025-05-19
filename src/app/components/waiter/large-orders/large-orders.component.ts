@@ -105,32 +105,32 @@ export class LargeOrdersComponent implements OnInit {
         return;
     }
 
-    this.orderService.getLargeOrdersByDateRange(
-        this.datePipe.transform(startDate, 'yyyy-MM-dd') || '',
-        this.datePipe.transform(endDate, 'yyyy-MM-dd') || ''
-    ).subscribe({
-        next: (orders) => {
-            // Filter orders within the selected date range
-            this.largeOrders = orders.filter(order => {
-                const orderDate = new Date(order.orderDate);
-                return orderDate >= startDate && orderDate <= endDate;
-            });
+    // this.orderService.getLargeOrdersByDateRange(
+    //     this.datePipe.transform(startDate, 'yyyy-MM-dd') || '',
+    //     this.datePipe.transform(endDate, 'yyyy-MM-dd') || ''
+    // ).subscribe({
+    //     next: (orders) => {
+    //         // Filter orders within the selected date range
+    //         this.largeOrders = orders.filter(order => {
+    //             const orderDate = new Date(order.orderDate);
+    //             return orderDate >= startDate && orderDate <= endDate;
+    //         });
 
-            this.filteredOrders = [...this.largeOrders];
-            this.setupTableOptions();
-            this.loading = false;
-        },
-        error: (err) => {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to load large orders',
-                life: 3000,
-            });
-            this.loading = false;
-            console.error(err);
-        },
-    });
+    //         this.filteredOrders = [...this.largeOrders];
+    //         this.setupTableOptions();
+    //         this.loading = false;
+    //     },
+    //     error: (err) => {
+    //         this.messageService.add({
+    //             severity: 'error',
+    //             summary: 'Error',
+    //             detail: 'Failed to load large orders',
+    //             life: 3000,
+    //         });
+    //         this.loading = false;
+    //         console.error(err);
+    //     },
+    // });
 }
 
 
