@@ -6,7 +6,6 @@ import { OrderService } from '../../../services/order.service'; // Adjust the im
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
 import { MenuItemService } from '../../../services/menu-item.service';
-import { PaymentService } from '../../../services/payment.service'; // Adjust the import path as necessary
 import { Button, ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputNumberModule } from 'primeng/inputnumber'; // Import InputNumberModule for number input
@@ -24,6 +23,7 @@ import { OrderStatus } from '../../../domain/pos/OrderStatus';
 import { OrderItem } from '../../../domain/pos/OrderItem';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { PaymentService } from '../../../services/payment.service';
 
 
 @Component({

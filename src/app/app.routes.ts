@@ -26,6 +26,8 @@ import { OnlineOrdersComponent } from './pages/cashier/online-orders/online-orde
 import { ViewPaymentsComponent } from './pages/cashier/view-payments/view-payments.component';
 import { ViewOrdersComponent } from './pages/cashier/view-orders/view-orders.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { OrdersComponent } from './pages/customer/orders/orders.component';
+import { OrderDetailsComponent } from './pages/customer/order-details/order-details.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -61,6 +63,8 @@ export const routes: Routes = [
     {path:'cart',component:CartComponent},
     {path: 'checkout', component:CheckoutComponent},
     {path: 'orderConfirmation', component: OrderConfirmationComponent},
+    {path: 'orders', component: OrdersComponent},
+    {path: 'orderDetails/:id', component: OrderDetailsComponent},
 
 
     { path: '**', redirectTo: '' }

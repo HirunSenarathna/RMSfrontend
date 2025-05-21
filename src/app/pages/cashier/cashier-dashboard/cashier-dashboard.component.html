@@ -174,11 +174,11 @@
         <p-radioButton name="paymentMethod" value="CASH" [(ngModel)]="paymentMethod" inputId="paymentCash"></p-radioButton>
         <label for="paymentCash" class="p-ml-2">Cash</label>
       </div>
-      
+<!--       
       <div class="p-field-radiobutton">
         <p-radioButton name="paymentMethod" value="CARD" [(ngModel)]="paymentMethod" inputId="paymentCard"></p-radioButton>
         <label for="paymentCard" class="p-ml-2">Card</label>
-      </div>
+      </div> -->
     </div>
     
     <div class="cash-payment" *ngIf="paymentMethod === 'CASH'">
@@ -212,10 +212,10 @@
         <label>Amount to Charge</label>
         <div class="card-amount">Rs. {{currentOrder.totalAmount.toFixed(2)}}</div>
       </div>
-      
+<!--       
       <div class="card-notice">
         <p>Please swipe the card or use the card terminal to process payment.</p>
-      </div>
+      </div> -->
     </div>
     
     <div class="payment-actions">

@@ -1,11 +1,15 @@
 export interface Employee {
-    employeeId?: string;
-    name?: string;
-    jobTitle?: string;
-    department?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    profilePicture?: string;
-    status?: 'Active' | 'Inactive' | 'On Leave';
+  id?: number;
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  username?: string;
+  password?: string;
+  dateOfBirth?: Date;
+  idCardNumber?: string;
+  role?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

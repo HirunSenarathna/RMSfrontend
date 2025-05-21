@@ -1,175 +1,253 @@
 <div class="card">
-  <p-toast />
-  <p-toolbar styleClass="mb-6">
-    <ng-template #start>
-      <p-button
-        severity="danger"
-        label="Delete"
-        icon="pi pi-trash"
-        outlined
-        (onClick)="deleteSelectedProducts()"
-        [disabled]="!selectedProducts || !selectedProducts.length"
-      />
-    </ng-template>
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
 
-    <ng-template #end>
-      <p-button
-        label="Export"
-        icon="pi pi-upload"
-        severity="secondary"
-        (onClick)="exportCSV()"
-      />
-    </ng-template>
-  </p-toolbar>
+    <!-- Toolbar -->
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="start">
+            <button pButton label="New" icon="pi pi-plus" class="mr-2" (click)="openNew()"></button>
+            <button pButton label="Delete" icon="pi pi-trash" severity="danger" [disabled]="!selectedMenuItems || selectedMenuItems.length === 0" 
+                    (click)="deleteSelectedMenuItems()"></button>
+        </ng-template>
 
-  <p-table
-    #dt
-    [value]="products"
-    [rows]="10"
-    [columns]="cols"
-    [paginator]="true"
-    [globalFilterFields]="[
-      'name',
-      'country.name',
-      'representative.name',
-      'status'
-    ]"
-    [tableStyle]="{ 'min-width': '75rem' }"
-    [(selection)]="selectedProducts"
-    [rowHover]="true"
-    dataKey="id"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [showCurrentPageReport]="true"
-  >
-    <ng-template #caption>
-      <div class="flex items-center justify-between">
-        <h5 class="m-0">Manage Products</h5>
-        <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
-          <input
-            #searchInput
-            pInputText
-            type="text"
-            (input)="dt.filterGlobal(searchInput.value, 'contains')"
-            placeholder="Search..."
-          />
-        </p-iconfield>
-      </div>
-    </ng-template>
-    <ng-template #header>
-      <tr>
-        <th style="width: 3rem">
-          <p-tableHeaderCheckbox />
-        </th>
-        <th style="min-width: 16rem">Code</th>
-        <th pSortableColumn="name" style="min-width: 16rem">
-          Name
-          <p-sortIcon field="name" />
-        </th>
-        <th>Image</th>
-        <th pSortableColumn="price" style="min-width: 8rem">
-          Price
-          <p-sortIcon field="price" />
-        </th>
-        <th pSortableColumn="category" style="min-width: 10rem">
-          Category
-          <p-sortIcon field="category" />
-        </th>
-        <th pSortableColumn="rating" style="min-width: 12rem">
-          Reviews
-          <p-sortIcon field="rating" />
-        </th>
-        <th pSortableColumn="inventoryStatus" style="min-width: 12rem">
-          Status
-          <p-sortIcon field="inventoryStatus" />
-        </th>
-        <th style="min-width: 12rem"></th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-product>
-      <tr>
-        <td style="width: 3rem">
-          <p-tableCheckbox [value]="product" />
-        </td>
-        <td style="min-width: 12rem">{{ product.code }}</td>
-        <td style="min-width: 16rem">{{ product.name }}</td>
-        <td>
-          <img
-            [src]="'' + product.image"
-            [alt]="product.name"
-            style="width: 64px; height: 64px"
-            class="rounded"
-          />
-        </td>
-        <td>{{ product.price | currency : "Rs " }}</td>
-        <td>{{ product.category }}</td>
-        <td>
-          <p-rating [(ngModel)]="product.rating" [readonly]="true" />
-        </td>
-        <td>
-          <p-tag
-            [value]="product.inventoryStatus"
-            [severity]="getSeverity(product.inventoryStatus)"
-          />
-        </td>
-        <td>
-          <p-button
-            icon="pi pi-pencil"
-            class="mr-2"
-            [rounded]="true"
-            [outlined]="true"
-            (click)="editProduct(product)"
-          />
-          <p-button
-            icon="pi pi-trash"
-            severity="danger"
-            [rounded]="true"
-            [outlined]="true"
-            (click)="deleteProduct(product)"
-          />
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #summary>
-      <div class="flex items-center justify-between">
-        In total there are {{ products ? products.length : 0 }} products.
-      </div>
-    </ng-template>
-  </p-table>
+        <ng-template pTemplate="end">
+            <button pButton label="Export" icon="pi pi-upload" severity="secondary" (click)="exportCSV()"></button>
+        </ng-template>
+    </p-toolbar>
 
-  <p-dialog
-    [(visible)]="productDialog"
-    [style]="{ width: '450px', height: '370px' }"
-    header="Product Details"
-    [modal]="true"
-  >
-    <form [formGroup]="productForm" class="p-fluid grid">
-      <div class="field col-12">
-        <label for="name">Name</label>
-        <input id="name" pInputText formControlName="name" />
-      </div>
+    <!-- Main Table -->
+    <p-table #dt [value]="menuItems" [loading]="loading" [rows]="10" [paginator]="true" [globalFilterFields]="['name','description','category.name']"
+             [(selection)]="selectedMenuItems" dataKey="id" [rowHover]="true" styleClass="p-datatable-gridlines"
+             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+        
+        <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+                <h5 class="m-0">Manage Menu Items</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input #searchInput pInputText type="text" (input)="dt.filterGlobal(searchInput.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
 
-      <div class="field col-12">
-        <label for="inventoryStatus">Status</label>
-        <p-select
-          [options]="statusOptions"
-          formControlName="inventoryStatus"
-          placeholder="Select Status"
-        >
-        </p-select>
-      </div>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th>Image</th>
+                <th pSortableColumn="category.name">Category <p-sortIcon field="category.name"></p-sortIcon></th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
 
-      <div class="field col-12">
-        <label for="price">Price</label>
-        <input id="price" pInputText formControlName="price" readonly />
-      </div>
-    </form>
+        <ng-template pTemplate="body" let-menuItem>
+            <tr (click)="showDetails(menuItem)" style="cursor: pointer">
+                <td (click)="$event.stopPropagation()">
+                    <p-tableCheckbox [value]="menuItem"></p-tableCheckbox>
+                </td>
+                <td>
+                    <span class="font-bold">{{menuItem.name}}</span>
+                    <p class="text-sm text-color-secondary mt-1">{{menuItem.description}}</p>
+                </td>
+                <td>
+                    <img [src]="menuItem.imageUrl || 'assets/desserts1.jpg'" [alt]="menuItem.name" 
+                         class="shadow-2 border-round" style="width: 64px; height: 64px; object-fit: cover"/>
+                </td>
+                <td>{{menuItem.category?.name}}</td>
+                <td (click)="$event.stopPropagation()">
+                    <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text mr-2" 
+                            (click)="editMenuItem(menuItem)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
+                            (click)="deleteMenuItem(menuItem)"></button>
+                </td>
+            </tr>
+        </ng-template>
 
-    <ng-template #footer>
-      <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
-      <p-button label="Save" icon="pi pi-check" (click)="saveProduct()" />
-    </ng-template>
-  </p-dialog>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">
+                In total there are {{menuItems ? menuItems.length : 0}} menu items.
+            </div>
+        </ng-template>
+    </p-table>
 
-  <p-confirmDialog [style]="{ width: '450px' }" />
+    <!-- Menu Item Details Dialog -->
+    <p-dialog [(visible)]="detailsDialog" [style]="{width: '700px'}" header="Menu Item Details" 
+              [modal]="true" [draggable]="false" [resizable]="false">
+        <div *ngIf="selectedItem" class="grid">
+            <div class="col-12 md:col-4">
+                <img [src]="selectedItem.imageUrl || 'assets/default-food.png'" [alt]="selectedItem.name" 
+                     class="w-full border-round shadow-2" style="max-height: 200px; object-fit: cover"/>
+            </div>
+            <div class="col-12 md:col-8">
+                <div class="text-xl font-bold mb-2">{{selectedItem.name}}</div>
+                <div class="text-color-secondary mb-3">{{selectedItem.description}}</div>
+                <div class="mb-2"><span class="font-semibold">Category:</span> {{selectedItem.categoryName}}</div>
+                <div class="mb-2">
+                    <span class="font-semibold">Status:</span> 
+                    <p-tag [value]="selectedItem.available ? 'Available' : 'Unavailable'" 
+                           [severity]="selectedItem.available ? 'success' : 'danger'" class="ml-2"></p-tag>
+                </div>
+            </div>
+
+            <div class="col-12 mt-4">
+                <h4>Variants</h4>
+                <p-table [value]="selectedItem.variants" [responsive]="true" styleClass="p-datatable-sm" 
+                        *ngIf="selectedItem.variants && selectedItem.variants.length > 0">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Variant</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-variant>
+                        <tr>
+                            <td>{{variant.variant || '-'}}</td>
+                            <td>{{variant.size}}</td>
+                            <td>{{variant.price | currency:'LKR '}}</td>
+                            <td>{{variant.stockQuantity}}</td>
+                            <td>
+                                <p-tag [value]="variant.available ? 'Available' : 'Unavailable'" 
+                                      [severity]="variant.available ? 'success' : 'danger'"></p-tag>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <p-message severity="info" text="No variants available" 
+                          *ngIf="!selectedItem.variants || selectedItem.variants.length === 0"></p-message>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <button pButton label="Close" icon="pi pi-times" (click)="detailsDialog = false"></button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Menu Item Dialog -->
+    <p-dialog [(visible)]="menuItemDialog" [style]="{width: '750px'}" header="{{menuItem.id ? 'Edit' : 'Create'}} Menu Item" 
+              [modal]="true" [draggable]="false" [resizable]="false">
+        <form class="p-fluid grid">
+            <div class="field col-12 md:col-6">
+                <label for="name">Name *</label>
+                <input id="name" type="text" pInputText [(ngModel)]="menuItem.name" name="name" required />
+                <small *ngIf="submitted && !menuItem.name" class="p-error">Name is required</small>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="category">Category *</label>
+                <p-dropdown [options]="categories" [(ngModel)]="menuItem.categoryId" optionLabel="name" 
+            name="category" [showClear]="true" placeholder="Select a Category"></p-dropdown>
+                <small *ngIf="submitted && !menuItem.categoryId" class="p-error">Category is required</small>
+            </div>
+
+            <div class="field col-12">
+                <label for="description">Description</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="menuItem.description" name="description" rows="3"></textarea>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="image">Image</label>
+                <p-fileUpload #fileUpload mode="basic" name="image" accept="image/*" [maxFileSize]="2000000" 
+                            chooseLabel="Upload Image" (onSelect)="onFileSelect($event)" [showUploadButton]="false" [showCancelButton]="false">
+                </p-fileUpload>
+                <small class="p-error" *ngIf="fileUpload.files && fileUpload.files.length > 0 && fileUpload.files[0].size > 2000000">
+                    File size should be less than 2MB
+                </small>
+            </div>
+
+            <div class="field col-12 md:col-6" *ngIf="menuItem.imageUrl">
+                <label>Image Preview</label>
+                <img [src]="menuItem.imageUrl" [alt]="menuItem.name" class="block border-round" style="max-height: 100px"/>
+            </div>
+
+            <div class="field col-12">
+                <div class="flex justify-content-between align-items-center mb-3">
+                    <h4>Variants</h4>
+                    <button pButton type="button" icon="pi pi-plus" label="Add Variant" class="p-button-sm" 
+                            (click)="openVariantDialog()"></button>
+                </div>
+
+                <p-table [value]="menuItem.variants" [responsive]="true" styleClass="p-datatable-sm" *ngIf="menuItem.variants && menuItem.variants.length > 0">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Variant</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-variant let-rowIndex="rowIndex">
+                        <tr>
+                            <td>{{variant.variant}}</td>
+                            <td>{{variant.size}}</td>
+                            <td>{{variant.price | currency:'LKR '}}</td>
+                            <td>{{variant.stockQuantity}}</td>
+                            <td>
+                                <p-tag [value]="variant.available ? 'Available' : 'Unavailable'" 
+                                      [severity]="variant.available ? 'success' : 'danger'"></p-tag>
+                            </td>
+                            <td>
+                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text mr-2" 
+                                        (click)="openVariantDialog(variant)"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
+                                        (click)="deleteVariant(variant)"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+
+                <p-message severity="info" text="No variants added" *ngIf="!menuItem.variants || menuItem.variants.length === 0"></p-message>
+            </div>
+        </form>
+
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+            <button pButton label="Save" icon="pi pi-check" (click)="saveMenuItem()"></button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Variant Dialog -->
+    <p-dialog [(visible)]="variantDialog" [style]="{width: '450px'}" header="{{currentVariant.id ? 'Edit' : 'Add'}} Variant" 
+              [modal]="true" [draggable]="false" [resizable]="false">
+        <form class="p-fluid grid">
+            <div class="field col-12">
+                <label for="variantName">Variant Name *</label>
+                <input id="variantName" type="text" pInputText [(ngModel)]="currentVariant.variant" name="variantName"  />
+                <!-- <small *ngIf="submitted && !currentVariant.variant" class="p-error">Variant name is required</small> -->
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="size">Size *</label>
+                <p-dropdown [options]="sizes" [(ngModel)]="currentVariant.size" name="size" placeholder="Select Size"></p-dropdown>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="price">Price (LKR) *</label>
+                <p-inputNumber id="price" [(ngModel)]="currentVariant.price" name="price" mode="currency" currency="LKR" 
+                             [min]="0" [required]="true"></p-inputNumber>
+                <small *ngIf="submitted && currentVariant.price <= 0" class="p-error">Price must be greater than 0</small>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="stock">Stock Quantity</label>
+                <p-inputNumber id="stock" [(ngModel)]="currentVariant.stockQuantity" name="stock" [min]="0"></p-inputNumber>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="available">Status</label>
+                <p-selectButton [options]="statuses" [(ngModel)]="currentVariant.available" optionLabel="label" 
+                                optionValue="value" name="available"></p-selectButton>
+            </div>
+        </form>
+
+        <ng-template pTemplate="footer">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+            <button pButton label="Save" icon="pi pi-check" (click)="saveVariant()"></button>
+        </ng-template>
+    </p-dialog>
 </div>

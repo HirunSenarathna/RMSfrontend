@@ -1,0 +1,95 @@
+<div class="orders-container">
+  <h2>My Orders</h2>
+  
+  <div *ngIf="loading" class="loading-spinner">
+    <span>Loading orders...</span>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <div *ngIf="!loading && !error && orders.length === 0" class="no-orders">
+    <p>You don't have any orders yet.</p>
+  </div>
+  
+  <div *ngIf="!loading && !error && orders.length > 0" class="orders-table-container">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th (click)="changeSorting('id')">
+            Order # 
+            <span *ngIf="sortBy === 'id'" class="sort-indicator">
+              {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th (click)="changeSorting('orderTime')">
+            Date 
+            <span *ngIf="sortBy === 'orderTime'" class="sort-indicator">
+              {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th>Items</th>
+          <th (click)="changeSorting('totalAmount')">
+            Total 
+            <span *ngIf="sortBy === 'totalAmount'" class="sort-indicator">
+              {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th (click)="changeSorting('status')">
+            Status 
+            <span *ngIf="sortBy === 'status'" class="sort-indicator">
+              {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th>Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders">
+          <td>{{ order.id }}</td>
+          <td>{{ getFormattedDate(order.orderTime) }}</td>
+          <td class="items-cell">
+            <div *ngFor="let item of order.items" class="order-item">
+              {{ item.quantity }}x {{ item.menuItemName }}
+              <span *ngIf="item.menuItemName">({{ item.menuItemName }})</span>
+            </div>
+          </td>
+          <td>{{ order.totalAmount | currency:'LKR':'symbol':'1.2-2' }}</td>
+          <td>
+            <span [ngClass]="getOrderStatusClass(order.orderStatus)" class="status-badge">
+              {{ order.orderStatus }}
+            </span>
+          </td>
+          <td>
+            <span [ngClass]="getPaymentStatusClass(order.paymentStatus)" class="status-badge">
+              {{ order.paymentStatus }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <a [routerLink]="['/orderDetails', order.id]" class="btn-details">Details</a>
+            <a *ngIf="order.paymentStatus === 'PENDING' && order.paymentLink" 
+               [href]="order.paymentLink" 
+               target="_blank" 
+               class="btn-pay">Pay Now</a>
+            <button *ngIf="order.paymentStatus === 'COMPLETED'" 
+                    [routerLink]="['/reorder', order.id]" 
+                    class="btn-reorder">Reorder</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="pagination">
+      <div class="pagination-info">
+        Showing {{ orders.length }} of {{ totalOrders }} orders
+      </div>
+      <div class="pagination-controls">
+        <button (click)="prevPage()" [disabled]="currentPage === 0">Previous</button>
+        <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
