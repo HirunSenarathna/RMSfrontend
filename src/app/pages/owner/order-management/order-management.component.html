@@ -17,10 +17,10 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['orderId', 'status']"
+    [globalFilterFields]="['customerId', 'customerName', 'orderStatus', 'paymentStatus']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [rowHover]="true"
-    dataKey="orderId"
+    dataKey="id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [showCurrentPageReport]="true"
   >
@@ -41,65 +41,40 @@
     </ng-template>
     <ng-template #header>
       <tr>
-        <th pSortableColumn="orderId">
-          Order ID <p-sortIcon field="orderId" />
+        <th pSortableColumn="customerId">
+          Customer ID <p-sortIcon field="customerId" />
         </th>
-        <th pSortableColumn="orderDate">
-          Order Date <p-sortIcon field="orderDate" />
+        <th pSortableColumn="customerName">
+          Customer Name <p-sortIcon field="customerName" />
         </th>
-        <th pSortableColumn="orderTime">
-          Order Time <p-sortIcon field="orderTime" />
+        <th pSortableColumn="totalAmount">
+          Total Amount <p-sortIcon field="totalAmount" />
         </th>
-        <th pSortableColumn="pickupDate">
-          Pickup Date <p-sortIcon field="pickupDate" />
+        <th pSortableColumn="paymentStatus">
+          Payment Status <p-sortIcon field="paymentStatus" />
         </th>
-        <th pSortableColumn="pickupTime">
-          Pickup Time <p-sortIcon field="pickupTime" />
+        <th pSortableColumn="orderStatus">
+          Order Status <p-sortIcon field="orderStatus" />
         </th>
-        <th pSortableColumn="customer">
-          Customer <p-sortIcon field="customer" />
+        <th pSortableColumn="isOnline">
+          Is Online <p-sortIcon field="isOnline" />
         </th>
-        <th pSortableColumn="paymentMethod">
-          Payment Method <p-sortIcon field="paymentMethod" />
-        </th>
-        <th pSortableColumn="itemName">
-          Item Name <p-sortIcon field="itemName" />
-        </th>
-        <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
-        <th pSortableColumn="unitPrice">
-          Unit Price <p-sortIcon field="unitPrice" />
-        </th>
-        <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
-        <th pSortableColumn="server">Server <p-sortIcon field="server" /></th>
-        <th pSortableColumn="orderType">
-          Order Type <p-sortIcon field="orderType" />
-        </th>
-        <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
-
         <th style="min-width: 12rem"></th>
       </tr>
     </ng-template>
     <ng-template #body let-order>
       <tr>
-        <td>{{ order.orderId }}</td>
-        <td>{{ order.orderDate }}</td>
-        <td>{{ order.orderTime }}</td>
-        <td>{{ order.pickupDate }}</td>
-        <td>{{ order.pickupTime }}</td>
-        <td>{{ order.customer }}</td>
-        <td>{{ order.paymentMethod }}</td>
-        <td>{{ order.itemName }}</td>
-        <td>{{ order.quantity }}</td>
-        <td>{{ order.unitPrice | currency : "Rs." }}</td>
-        <td>{{ order.total | currency : "Rs." }}</td>
-        <td>{{ order.server }}</td>
-        <td>{{ order.orderType }}</td>
+        <td>{{ order.customerId }}</td>
+        <td>{{ order.customerName }}</td>
+        <td>{{ order.totalAmount | currency : 'Rs.' }}</td>
+        <td>{{ order.paymentStatus }}</td>
         <td>
           <p-tag
-            [value]="order.status"
-            [severity]="getSeverity(order.status)"
+            [value]="order.orderStatus"
+            [severity]="getSeverity(order.orderStatus)"
           />
         </td>
+        <td>{{ order.isOnline ? 'NO' : 'Yes' }}</td>
       </tr>
     </ng-template>
     <ng-template #summary>
@@ -118,21 +93,31 @@
     <ng-template #content>
       <div class="flex flex-col gap-6">
         <div>
-          <label for="orderId" class="block font-bold mb-3">Order ID</label>
+          <label for="customerId" class="block font-bold mb-3">Customer ID</label>
           <input
             type="text"
             pInputText
-            id="orderId"
-            [(ngModel)]="order.orderId"
+            id="customerId"
+            [(ngModel)]="order.customerId"
             required
             readonly
             fluid
           />
         </div>
         <div>
-          <label for="totalAmount" class="block font-bold mb-3"
-            >Total Amount</label
-          >
+          <label for="customerName" class="block font-bold mb-3">Customer Name</label>
+          <input
+            type="text"
+            pInputText
+            id="customerName"
+            [(ngModel)]="order.customerName"
+            required
+            readonly
+            fluid
+          />
+        </div>
+        <div>
+          <label for="totalAmount" class="block font-bold mb-3">Total Amount</label>
           <p-inputnumber
             id="totalAmount"
             [(ngModel)]="order.totalAmount"
@@ -143,9 +128,21 @@
           />
         </div>
         <div>
-          <label for="status" class="block font-bold mb-3">Status</label>
+          <label for="paymentStatus" class="block font-bold mb-3">Payment Status</label>
+          <input
+            type="text"
+            pInputText
+            id="paymentStatus"
+            [(ngModel)]="order.paymentStatus"
+            required
+            readonly
+            fluid
+          />
+        </div>
+        <div>
+          <label for="status" class="block font-bold mb-3">Order Status</label>
           <p-select
-            [(ngModel)]="order.status"
+            [(ngModel)]="order.orderStatus"
             inputId="status"
             [options]="statuses"
             optionLabel="label"
@@ -153,9 +150,20 @@
             fluid
           />
         </div>
+        <div>
+          <label for="isOnline" class="block font-bold mb-3">Is Online</label>
+          <input
+            type="text"
+            pInputText
+            id="isOnline"
+            [value]="order.isOnline ? 'Yes' : 'No'"
+            required
+            readonly
+            fluid
+          />
+        </div>
       </div>
     </ng-template>
-
     <ng-template #footer>
       <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
     </ng-template>

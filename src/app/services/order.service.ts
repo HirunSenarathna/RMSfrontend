@@ -7,7 +7,20 @@ import { CartItem } from '../domain/cartItem';
 import { AuthService } from './auth.service';
 import { HttpHeaders } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 
+// Interface for paginated response
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  numberOfElements: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +30,32 @@ export class OrderService {
   private apiUrl = 'http://localhost:8091/api/orders';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
+
+  getCustomerOrdersPaged(
+    customerId: number, 
+    page: number = 0, 
+    size: number = 10, 
+    sortBy: string = 'orderTime', 
+    direction: string = 'DESC'
+  ): Observable<PageResponse<Order>> {
+    const headers = this.getAuthHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('direction', direction);
+    
+    return this.http.get<PageResponse<Order>>(`${this.apiUrl}/customer/${customerId}/paged`, { 
+      headers, 
+      params 
+    }).pipe(
+      tap(response => console.log('Retrieved customer orders:', response)),
+      catchError(error => {
+        console.error('Error fetching customer orders:', error);
+        return throwError(() => new Error(error.error?.message || 'Failed to fetch customer orders'));
+      })
+    );
+  }
 
   createOrder(orderData: any): Observable<any> {
     console.log('Original Order Data:', orderData);

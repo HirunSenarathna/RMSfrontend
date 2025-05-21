@@ -2,7 +2,7 @@ import { Component,ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Order } from '../../../domain/order';
+import { Order } from '../../../domain/pos/Order';
 import { OrderService } from '../../../services/order.service';
 
 
@@ -24,6 +24,10 @@ import { InputNumber } from 'primeng/inputnumber';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Table } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
+
+
 
 interface Column {
   field: string;
@@ -39,95 +43,193 @@ interface ExportColumn {
 
 @Component({
   selector: 'app-waiter-order-management',
-  imports: [CommonModule, TableModule, Dialog, ButtonModule, ToastModule, ToolbarModule, ConfirmDialog, InputTextModule, TextareaModule, SelectModule, FormsModule, IconFieldModule, InputIconModule],
+  imports: [CommonModule, TableModule, Dialog, ButtonModule, ToastModule, ToolbarModule, ConfirmDialog, InputTextModule, TextareaModule, SelectModule, FormsModule, IconFieldModule, InputIconModule,DropdownModule,TagModule ],
   templateUrl: './waiter-order-management.component.html',
   styleUrl: './waiter-order-management.component.css',
   providers: [MessageService, ConfirmationService, OrderService]
 })
 export class WaiterOrderManagementComponent implements OnInit {
+ @ViewChild('dt') table!: Table;
 
   orderDialog: boolean = false;
-  orders!: any[];
-  selectedOrder: any;
+  orders: Order[] = [];
+  selectedOrder: Order | null = null; // <-- Fix: allow null for no selection
   statuses!: any[];
   submitted: boolean = false;
   cols!: Column[];
+  loading: boolean = true;
 
-  constructor(private messageService: MessageService,private orderService: OrderService,) {}
+  constructor(
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-      this.loadOrders();
+    this.loadOrders();
+    this.initializeColumns();
+    this.initializeStatuses();
+  }
+
+  loadOrders(): void {
+    this.loading = true;
+    this.orderService.getAllOrders().subscribe({
+      next: (data) => {
+        this.orders = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load orders: ' + err.message,
+        });
+        this.loading = false;
+      },
+    });
+  }
+
+  initializeColumns() {
+    this.cols = [
+      { field: 'id', header: 'Order ID' },
+      { field: 'orderTime', header: 'Order Time' },
+      { field: 'customerName', header: 'Customer' },
+      { field: 'paymentMethod', header: 'Payment Method' },
+      { field: 'totalAmount', header: 'Total' },
+      { field: 'orderStatus', header: 'Status' },
+    ];
+  }
+
+  initializeStatuses() {
+    this.statuses = [
+      { label: 'Placed', value: 'PLACED' },
+      { label: 'Confirmed', value: 'CONFIRMED' },
+      { label: 'Preparing', value: 'PREPARING' },
+      { label: 'Ready', value: 'READY' },
+      { label: 'Delivered', value: 'DELIVERED' },
+      { label: 'Cancelled', value: 'CANCELLED' },
+    ];
   }
 
   exportCSV() {
-    // Implement CSV export logic
-    console.log('Exporting CSV...');
-}
-
-
-  loadOrders() {
-    
-      // this.orderService.getOrdersB().then(orders => {
-      //     this.orders = orders;
-      // }
-      // );
-  
-      this.statuses = [
-          { label: 'Pending', value: 'Pending' },
-          { label: 'Shipped', value: 'Shipped' },
-          { label: 'Delivered', value: 'Delivered' },
-          { label: 'Cancelled', value: 'Cancelled' }
-      ];
-
-      this.cols = [
-          { field: 'orderId', header: 'Order ID' },
-          { field: 'orderDate', header: 'Order Date' },
-          { field: 'orderTime', header: 'Order Time' },
-          { field: 'customer', header: 'Customer' },
-          { field: 'paymentMethod', header: 'Payment Method' },
-          { field: 'itemName', header: 'Item Name' },
-          { field: 'quantity', header: 'Qty' },
-          { field: 'unitPrice', header: 'Unit Price' },
-          { field: 'total', header: 'Total' },
-          { field: 'orderType', header: 'Order Type' },
-          { field: 'status', header: 'Status' }
-      ];
+    this.table.exportCSV();
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Export',
+      detail: 'Orders exported to CSV',
+    });
   }
 
-  hideDialog() {
+  updateOrderStatusDialog(order: Order): void {
+    this.selectedOrder = { ...order };
+    this.orderDialog = true;
+  }
+
+  hideDialog(): void {
     this.orderDialog = false;
+    this.selectedOrder = null;
     this.submitted = false;
-
-}
-
-
-
-updateOrderStatusDialog(order: any) {
-  this.selectedOrder = { ...order }; 
-  this.orderDialog = true;
-}
-
-  editOrder(order: any) {
-      this.orderDialog = true;
   }
 
-  deleteOrder(order: any) {
-      this.orders = this.orders.filter(o => o.orderId !== order.orderId);
-      this.messageService.add({ severity: 'success', summary: 'Order Deleted', detail: `Order ${order.orderId} has been deleted.` });
-  }
+  saveOrderStatus(): void {
+    if (!this.selectedOrder) return;
 
-  saveOrderStatus() {
-    if (!this.selectedOrder.status) {
-        return; // Ensure status is selected
+    this.submitted = true;
+    this.loading = true;
+
+    if (this.selectedOrder.id && this.selectedOrder.orderStatus) {
+      this.orderService
+        .updateOrderStatus(this.selectedOrder.id, this.selectedOrder.orderStatus)
+        .subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `Order #${this.selectedOrder?.id} status updated to ${this.selectedOrder?.orderStatus}`,
+            });
+
+            const index = this.orders.findIndex(
+              (o) => o.id === this.selectedOrder?.id
+            );
+            if (index !== -1 && this.selectedOrder) {
+              this.orders[index].orderStatus = this.selectedOrder.orderStatus;
+            }
+
+            this.orderDialog = false;
+            this.loading = false;
+            this.selectedOrder = null;
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Failed to update order status: ${err.message}`,
+            });
+            this.loading = false;
+          },
+        });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Invalid order or status',
+      });
+      this.loading = false;
     }
+  }
 
-    this.orders = this.orders.map(order => 
-        order.orderId === this.selectedOrder.orderId ? { ...order, status: this.selectedOrder.status } : order
-    );
+  deleteOrder(order: Order): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete Order #${order.id}?`,
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        // Delete locally (replace with actual service call in production)
+        this.orders = this.orders.filter((o) => o.id !== order.id);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Order Deleted',
+          life: 3000,
+        });
+      },
+    });
+  }
 
-    this.messageService.add({ severity: 'success', summary: 'Status Updated', detail: `Order ${this.selectedOrder.orderId} status updated to ${this.selectedOrder.status}` });
+  formatPaymentMethod(method?: string): string {
+    if (!method) return 'Unknown';
 
-    this.orderDialog = false;
-}
+    switch (method.toUpperCase()) {
+      case 'CASH':
+        return 'Cash';
+      case 'CARD':
+      case 'CREDIT_CARD':
+        return 'Credit Card';
+      default:
+        return method;
+    }
+  }
+
+  getStatusSeverity(status?: string) {
+    if (!status) return 'info';
+
+    switch (status.toUpperCase()) {
+      case 'PLACED':
+        return 'warn';
+      case 'CONFIRMED':
+      case 'PREPARING':
+        return 'info';
+      case 'READY':
+      case 'DELIVERED':
+        return 'success';
+      case 'CANCELLED':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+  
 
 }

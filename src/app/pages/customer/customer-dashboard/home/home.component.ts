@@ -13,9 +13,9 @@ export class HomeComponent {
   @ViewChild('menuContainer', { static: false }) menuContainer!: ElementRef;
 
   slides = [
-    { image: 'assets/image1.jpg', title: 'Discover Delicious Meals Online', text: 'Experience seamless navigation and secure payments for a delightful dining experience.', buttonText: 'Order Now' },
-    { image: 'assets/image2.jpg', title: 'Explore Our Diverse Menu', text: 'Choose from a wide range of authentic dishes prepared by expert chefs.', buttonText: 'View Menu' },
-    { image: 'assets/image3.jpg', title: 'Savor Every Bite', text: 'Enjoy the perfect blend of flavors in every meal.', buttonText: 'Reserve Table' }
+    { image: 'assets/image1.jpg', title: 'Discover Delicious Meals Online', text: 'Experience seamless navigation and secure payments for a delightful dining experience.' },
+    { image: 'assets/image2.jpg', title: 'Explore Our Diverse Menu', text: 'Choose from a wide range of authentic dishes prepared by expert chefs.' },
+    { image: 'assets/image3.jpg', title: 'Savor Every Bite', text: 'Enjoy the perfect blend of flavors in every meal.' }
   ];
 
   menuItems = [

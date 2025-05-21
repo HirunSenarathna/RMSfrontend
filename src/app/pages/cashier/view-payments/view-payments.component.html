@@ -18,7 +18,7 @@
         <button pButton label="Filter" icon="pi pi-filter" (click)="applyFilters()"></button>
       </div>
       
-      <div class="payment-summary-cards">
+      <!-- <div class="payment-summary-cards">
         <div class="summary-card">
           <div class="summary-title">Today's Total</div>
           <div class="summary-amount">Rs. {{todayTotal.toFixed(2)}}</div>
@@ -42,7 +42,7 @@
           <div class="summary-amount">Rs. {{todayOnline.toFixed(2)}}</div>
           <div class="summary-details">{{todayOnlineCount}} transactions</div>
         </div>
-      </div>
+      </div> -->
       
       <p-table [value]="payments" styleClass="p-datatable-sm" [paginator]="true" [rows]="10">
         <ng-template pTemplate="header">

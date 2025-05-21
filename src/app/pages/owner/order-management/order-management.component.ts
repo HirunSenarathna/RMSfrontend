@@ -2,7 +2,7 @@ import { Component,ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Order } from '../../../domain/order';
+import { Order } from '../../../domain/pos/Order';
 import { OrderService } from '../../../services/order.service';
 
 
@@ -45,11 +45,22 @@ export class OrderManagementComponent implements OnInit {
   orders!: Order[];
   order!: Order;
   submitted: boolean = false;
-  statuses = [{ label: 'Accepted', value: 'Accepted' }, { label: 'Ready', value: 'Ready' }, { label: 'Delivered', value: 'Delivered' }];
+  statuses = [
+    { label: 'Accepted', value: 'Accepted' },
+    { label: 'Ready', value: 'Ready' },
+    { label: 'Delivered', value: 'Delivered' },
+  ];
 
   @ViewChild('dt') dt!: Table;
 
-  cols!: Column[];
+  cols: Column[] = [
+    { field: 'customerId', header: 'Customer ID' },
+    { field: 'customerName', header: 'Customer Name' },
+    { field: 'totalAmount', header: 'Total Amount' },
+    { field: 'paymentStatus', header: 'Payment Status' },
+    { field: 'orderStatus', header: 'Order Status' },
+    { field: 'isOnline', header: 'Is Online' },
+  ];
 
   constructor(
     private orderService: OrderService,
@@ -60,44 +71,43 @@ export class OrderManagementComponent implements OnInit {
     this.loadOrders();
   }
 
-  exportCSV() {
-    this.dt.exportCSV();
-}
-
   loadOrders() {
-    // this.orderService.getOrders().then((data) => {
-    // //   this.orders = data;
-    //   this.cd.markForCheck();
-    // });
+    this.orderService.getAllOrders().subscribe({
+      next: (data) => {
+        this.orders = data;
+        this.cd.markForCheck();
+      },
+      error: (error) => {
+        console.error('Failed to load orders:', error);
+      },
+    });
   }
 
+  exportCSV() {
+    this.dt.exportCSV();
+  }
 
   hideDialog() {
     this.orderDialog = false;
     this.submitted = false;
-}
+  }
 
   generateOrderId(): string {
     return 'ORD' + Math.floor(Math.random() * 10000);
   }
 
-  
   getSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
     switch (status) {
-        case 'Accepted':
-            return 'success';
-        case 'Ready':
-            return 'success';
-        case 'Delivered':
-            return 'success';
-        case 'Rejected':
-            return 'danger';
-        case 'Pending':
-            return 'warn';
-                    
-        default:
-            return 'info'; // Map 'unknown' to a valid severity type
+      case 'Accepted':
+      case 'Ready':
+      case 'Delivered':
+        return 'success';
+      case 'Rejected':
+        return 'danger';
+      case 'Pending':
+        return 'warn';
+      default:
+        return 'info';
     }
-
   }
 }

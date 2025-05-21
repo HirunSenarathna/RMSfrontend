@@ -1,0 +1,107 @@
+<div class="order-detail-container">
+  <div class="back-button-container">
+    <button class="back-button" (click)="goBack()">
+      ← Back to Orders
+    </button>
+  </div>
+
+  <h2>Order Details</h2>
+  
+  <div *ngIf="loading" class="loading-spinner">
+    <span>Loading order details...</span>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && order" class="order-details">
+    <div class="order-header">
+      <div class="order-id">
+        <h3>Order #{{ order.id }}</h3>
+        <span [ngClass]="getOrderStatusClass(order.orderStatus)" class="status-badge">
+          {{ order.orderStatus }}
+        </span>
+      </div>
+      <div class="order-meta">
+        <div class="meta-item">
+          <span class="meta-label">Ordered:</span>
+          <span class="meta-value">{{ getFormattedDate(order.orderTime) }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Payment Status:</span>
+          <span [ngClass]="getPaymentStatusClass(order.paymentStatus)" class="status-badge">
+            {{ order.paymentStatus }}
+          </span>
+        </div>
+        <div class="meta-item" *ngIf="order.paymentMethod">
+          <span class="meta-label">Payment Method:</span>
+          <span class="meta-value">{{ order.paymentMethod }}</span>
+        </div>
+        <div class="meta-item" *ngIf="order.tableNumber">
+          <span class="meta-label">Table Number:</span>
+          <span class="meta-value">{{ order.tableNumber }}</span>
+        </div>
+        <!-- <div class="meta-item">
+          <span class="meta-label">Order Type:</span>
+          <span class="meta-value">{{ order.isOnline ? 'Online' : 'In Restaurant' }}</span>
+        </div> -->
+      </div>
+    </div>
+
+    <div class="order-items-section">
+      <h4>Items</h4>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Variant</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of order.items">
+            <td>{{ item.menuItemName }}</td>
+            <td>{{ item.menuItemName || 'N/A' }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.subTotal| currency }}</td>
+            <td>{{ item.quantity * item.subTotal | currency }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="total-label">Subtotal</td>
+            <td>{{ order.totalAmount |  currency:'LKR' }}</td>
+          </tr>
+          <!-- <tr *ngIf="order.taxAmount">
+            <td colspan="4" class="total-label">Tax</td>
+            <td>{{ order.taxAmount |  currency:'LKR' }}</td>
+          </tr> -->
+          <!-- <tr *ngIf="order.discountAmount">
+            <td colspan="4" class="total-label">Discount</td>
+            <td>-{{ order.discountAmount | currency }}</td>
+          </tr> -->
+          <tr class="total-row">
+            <td colspan="4" class="total-label">Total</td>
+            <td class="total-amount">{{ order.totalAmount | currency }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="special-instructions" *ngIf="order.specialInstructions">
+      <h4>Special Instructions</h4>
+      <p>{{ order.specialInstructions }}</p>
+    </div>
+
+    <div class="order-actions" *ngIf="order.paymentStatus === 'PENDING' && order.paymentLink">
+      <a [href]="order.paymentLink" target="_blank" class="btn-pay">Pay Now</a>
+    </div>
+
+    <div class="order-actions" *ngIf="order.orderStatus === 'COMPLETED'">
+      <button class="btn-reorder" [routerLink]="['/reorder', order.id]">Reorder</button>
+    </div>
+  </div>
+</div>
