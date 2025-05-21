@@ -7,13 +7,17 @@ import { Router } from '@angular/router';
 import { CartService } from './cart.service';
 
 export interface User {
-  id: number;
+  id?: number;
   firstname: string;
   lastname: string;
   email: string;
   phone: string;
   username: string;
-  role?: string;
+  address?: string;
+  role: string;
+  userType: 'employee' | 'customer';
+  dateOfBirth?: string;
+  idCardNumber?: string;
 }
 
 export interface LoginResponse {
@@ -28,6 +32,7 @@ export interface LoginResponse {
   phone: string;
   role: string;
   // expiresIn: number;
+  userType: 'employee' | 'customer';
 }
 
 @Injectable({
@@ -160,6 +165,10 @@ export class AuthService {
   hasRole(role: string): boolean {
     const user = this.currentUserSubject.value;
     return !!user && user.role === role;
+  }
+
+  updateCurrentUser(user: User): void {
+    this.currentUserSubject.next(user);
   }
 
  

@@ -1,5 +1,4 @@
 <div class="menu-card">
-  <div class="sale-badge" *ngIf="item.sale">Sale</div>
   <div class="availability-badge" *ngIf="!item.available">Unavailable</div>
   <img [src]="item.image" alt="{{ item.name }}" class="menu-image">
   <h3>{{ item.name }}</h3>
@@ -7,7 +6,6 @@
   
   <!-- Price display -->
   <!-- <p>
-    <span *ngIf="item.sale" class="old-price">{{ item.oldPrice | currency }}</span>
     <span class="price">{{ selectedVariant?.price || item.price | currency }}</span>
   </p> -->
 
@@ -28,14 +26,6 @@
     </span>
   </p>
 
-  <div class="star-rating">
-    <span *ngFor="let star of [1, 2, 3, 4, 5]" 
-          [class.selected]="star <= item.rating" 
-          (click)="rate(star)">
-      &#9733;
-    </span>
-  </div>
-  
   <button 
     class="add-to-cart" 
     [disabled]="!item.available || (selectedVariant && selectedVariant.stockQuantity <= 0)"
