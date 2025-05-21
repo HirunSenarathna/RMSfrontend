@@ -134,6 +134,7 @@ export class OnlineOrdersComponent implements OnInit {
   
      const paymentDetails = {
       orderId: this.selectedOrderForPayment.id,
+      customerId: this.selectedOrderForPayment.customerId,
       amount: this.selectedOrderForPayment.totalAmount,
       paymentMethod: this.paymentMethod,
       cashReceived: this.cashAmount,

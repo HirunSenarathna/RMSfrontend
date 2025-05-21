@@ -1,7 +1,7 @@
 <div class="header">
   <div class="logo">Restaurant POS</div>
   
-  <!-- Moved Toolbar Navigation Here -->
+  <!-- Toolbar Navigation -->
   <div class="pos-navigation">
     <p-button label="New Order" icon="pi pi-plus" styleClass="mr-2" routerLink="/cashier"></p-button>
     <p-button label="Online Orders" icon="pi pi-shopping-cart" styleClass="p-button-info mr-2" 
@@ -13,9 +13,17 @@
   </div>
 
   <div class="user">
-    <!-- <div class="user-name">Hi, {{ userName }}</div> -->
-    <div class="user-image">
-      <!-- <img [src]="userImage" width="30px" height="30px"> -->
+    <div class="user-name" *ngIf="currentUser">Hi, {{ userName }}</div>
+    <div class="profile-menu">
+      <p-avatar 
+        icon="pi pi-user" 
+        styleClass="profile-icon" 
+        [style]="{'cursor': 'pointer'}" 
+        size="large" 
+        shape="circle"
+        (click)="menu.toggle($event)">
+      </p-avatar>
+      <p-menu #menu [popup]="true" [model]="profileItems"></p-menu>
     </div>
   </div>
 </div>

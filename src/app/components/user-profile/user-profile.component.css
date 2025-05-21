@@ -1,0 +1,121 @@
+.profile-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 20px;
+  max-height: 90vh; /* Set maximum height to viewport height */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  color: white;
+  border-radius: 6px 6px 0 0;
+  position: sticky; /* Make header stick when scrolling */
+  top: 0;
+  z-index: 10; /* Ensure header stays above other content */
+}
+
+.profile-avatar {
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.profile-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.profile-title p {
+  margin: 5px 0 0;
+  opacity: 0.8;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.profile-content {
+  padding: 20px 0;
+}
+
+.profile-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.info-group {
+  margin-bottom: 15px;
+}
+
+.info-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.w-full {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .profile-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-container {
+    max-height: 85vh; /* Adjust height for smaller screens */
+  }
+}
+
+/* Optional: Custom scrollbar styling */
+.profile-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.profile-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.profile-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

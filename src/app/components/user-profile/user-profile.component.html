@@ -1,0 +1,185 @@
+<div class="profile-container">
+  <p-toast position="top-right"></p-toast>
+
+  <p-card header="My Profile" subheader="View and manage your account information">
+    <ng-template pTemplate="header">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="pi pi-user" style="font-size: 2rem"></i>
+        </div>
+        <div class="profile-title">
+          <h2 *ngIf="currentUser">{{ currentUser.firstname }} {{ currentUser.lastname }}</h2>
+          <p *ngIf="currentUser">{{ currentUser.role | titlecase }}</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="profile-actions">
+      <p-button 
+        icon="pi pi-arrow-left" 
+        label="Back" 
+        styleClass="p-button-text"
+        (onClick)="goBack()">
+      </p-button>
+      <p-button 
+        [label]="editMode ? 'Cancel' : 'Edit Profile'" 
+        [icon]="editMode ? 'pi pi-times' : 'pi pi-pencil'" 
+        [styleClass]="editMode ? 'p-button-secondary' : 'p-button-text'"
+        (onClick)="toggleEditMode()">
+      </p-button>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div class="profile-content" *ngIf="currentUser && !editMode">
+      <div class="profile-info">
+        <div class="info-group">
+          <div class="info-label">First Name</div>
+          <div class="info-value">{{ currentUser.firstname }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Last Name</div>
+          <div class="info-value">{{ currentUser.lastname }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Email</div>
+          <div class="info-value">{{ currentUser.email }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Phone</div>
+          <div class="info-value">{{ currentUser.phone }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Username</div>
+          <div class="info-value">{{ currentUser.username }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Address</div>
+          <div class="info-value">{{ currentUser.address || 'Not provided' }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Role</div>
+          <div class="info-value">{{ currentUser.role | titlecase }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">Date of Birth</div>
+          <div class="info-value">{{ currentUser.dateOfBirth || 'Not provided' }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">ID Card Number</div>
+          <div class="info-value">{{ currentUser.idCardNumber || 'Not provided' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" *ngIf="editMode && profileForm">
+      <div class="form-group">
+        <label for="firstname">First Name</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-user"></i>
+          <input id="firstname" type="text" pInputText formControlName="firstname" class="w-full">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('firstname')?.invalid && profileForm.get('firstname')?.touched">
+          First name must be between 2 and 50 characters
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="lastname">Last Name</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-user"></i>
+          <input id="lastname" type="text" pInputText formControlName="lastname" class="w-full">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('lastname')?.invalid && profileForm.get('lastname')?.touched">
+          Last name must be between 2 and 50 characters
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-envelope"></i>
+          <input id="email" type="email" pInputText formControlName="email" class="w-full">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
+          Valid email is required
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-phone"></i>
+          <input id="phone" type="text" pInputText formControlName="phone" class="w-full">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched">
+          Phone number must be 10-15 digits
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-id-card"></i>
+          <input id="username" type="text" pInputText formControlName="username" class="w-full" [disabled]="true">
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-home"></i>
+          <input id="address" type="text" pInputText formControlName="address" class="w-full">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('address')?.invalid && profileForm.get('address')?.touched">
+          Address is required
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-users"></i>
+          <input id="role" type="text" pInputText formControlName="role" class="w-full" [disabled]="true">
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Date of Birth</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-calendar"></i>
+          <p-calendar id="dateOfBirth" formControlName="dateOfBirth" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full" [disabled]="true"></p-calendar>
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('dateOfBirth')?.invalid && profileForm.get('dateOfBirth')?.touched">
+          Valid date of birth is required
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="idCardNumber">ID Card Number</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-id-card"></i>
+          <input id="idCardNumber" type="text" pInputText formControlName="idCardNumber" class="w-full" [disabled]="true">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('idCardNumber')?.invalid && profileForm.get('idCardNumber')?.touched">
+          ID card number is required
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="password">New Password (optional)</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-lock"></i>
+          <input id="password" type="password" pInputText formControlName="password" class="w-full">
+        </span>
+        <small class="p-error" *ngIf="profileForm.get('password')?.invalid && profileForm.get('password')?.touched">
+          Password must be at least 8 characters
+        </small>
+      </div>
+
+      <div class="form-actions">
+        <p-button type="submit" label="Save Changes" icon="pi pi-check" [disabled]="profileForm.invalid"></p-button>
+      </div>
+    </form>
+  </p-card>
+</div>
