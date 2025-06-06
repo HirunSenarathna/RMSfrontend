@@ -33,9 +33,19 @@ export class MenuItemsComponent {
 
   ngOnInit(): void {
     // Set default selected variant to the first one
-    if (this.item?.variants && this.item.variants.length > 0) {
+    const availableVariants = this.getAvailableVariants();
+    if (availableVariants.length > 0) {
       this.selectedVariant = this.item.variants[0];
     }
+  }
+
+  
+  // Get only variants that are in stock and available
+  getAvailableVariants(): any[] {
+    if (!this.item?.variants) {
+      return [];
+    }
+    return this.item.variants.filter((variant: any) => variant.stockQuantity > 0 && variant.available);
   }
 
   rate(value: number) {

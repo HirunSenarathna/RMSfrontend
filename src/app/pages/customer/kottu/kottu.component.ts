@@ -52,8 +52,8 @@ export class KottuComponent {
     
     this.cartService.addToCart(cartItem);
     
-    // You would normally update the variant's stock quantity here via API call
-    // Simulating stock reduction for now
+    //todo:api call to update stock
+    // stock reduction 
     if (variant.stockQuantity > 0) {
       variant.stockQuantity--;
     }
