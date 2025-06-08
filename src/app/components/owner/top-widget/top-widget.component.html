@@ -1,29 +1,45 @@
+
 <div class="widget-container">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error && !loading" class="error-container">
+    <p>Failed to load analytics data</p>
+    <button (click)="retryLoad()" class="retry-btn">Retry</button>
+  </div>
+
+  <!-- Data display -->
+  <div *ngIf="!loading && !error" class="widgets-grid">
     <div class="widget green">
- 
       <div class="value">
-        <div class="top">32</div>
-        <div class="bottom">Catagories</div>
+        <div class="top">{{ summaryData.totalCategories }}</div>
+        <div class="bottom">Categories</div>
       </div>
     </div>
-    <div class="widget yellow">
-   
-      <div class="value">
-        <div class="top">295</div>
-        <div class="bottom">Custormers</div>
-      </div>
-    </div>
-    <div class="widget red">
     
+    <div class="widget yellow">
       <div class="value">
-        <div class="top">4578</div>
+        <div class="top">{{ summaryData.totalCustomers }}</div>
+        <div class="bottom">Customers</div>
+      </div>
+    </div>
+    
+    <div class="widget red">
+      <div class="value">
+        <div class="top">{{ summaryData.totalProductsSold }}</div>
         <div class="bottom">Products Sold</div>
       </div>
     </div>
+    
     <div class="widget blue">
-           <div class="value">
-        <div class="top">346928</div>
+      <div class="value">
+        <div class="top">{{ formatRevenue(summaryData.totalRevenue) }}</div>
         <div class="bottom">Total Revenue</div>
       </div>
     </div>
   </div>
+</div>

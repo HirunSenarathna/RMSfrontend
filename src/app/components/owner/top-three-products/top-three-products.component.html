@@ -1,1 +1,12 @@
-<div class="chart-container" [chart]="chart"></div>
+<div class="chart-container">
+  <div *ngIf="loading" class="loading-spinner">
+    <p>Loading top products data...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadTopProductsData()" class="retry-btn">Retry</button>
+  </div>
+  
+  <div *ngIf="!loading && !error" [chart]="chart"></div>
+</div>
