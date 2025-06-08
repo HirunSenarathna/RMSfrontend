@@ -9,7 +9,7 @@ import { LastFewTransactionsComponent } from '../../../components/owner/last-few
 
 @Component({
   selector: 'app-owner-dashboard',
-  imports: [RouterModule, CommonModule,TopWidgetComponent,TopThreeProductsComponent,SalesByMonthComponent,SalesByCategoryComponent,LastFewTransactionsComponent],
+  imports: [RouterModule, CommonModule,TopWidgetComponent,TopThreeProductsComponent,SalesByMonthComponent,SalesByCategoryComponent],
   templateUrl: './owner-dashboard.component.html',
   styleUrl: './owner-dashboard.component.css'
 })

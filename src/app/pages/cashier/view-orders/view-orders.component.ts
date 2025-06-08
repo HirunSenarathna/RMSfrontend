@@ -1,8 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SelectItem } from 'primeng/api';
-import { OrderService } from '../../../services/order.service';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -14,58 +13,54 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { TabViewModule } from 'primeng/tabview';
+import { InputTextModule } from 'primeng/inputtext';
+import { RadioButtonModule } from 'primeng/radiobutton';
+
+import { Order } from '../../../domain/pos/Order';
+import { OrderService } from '../../../services/order.service';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 
 
-export interface Order {
-  id: string;
-  items: OrderItem[];
-  total_amount: number;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELED';
-  customer_id: string | null;
-  customer_name: string | null;
-  created_at: Date;
-  updated_at: Date;
-  subtotal: number;
-  tax: number;
-  total: number;
-  isPaid: boolean;
-  paymentMethod: string;
-  payment_status: string;
-  isOnline: boolean;
-  createdAt: Date;
-  discount_amount?: number;
-}
 
-// Order Item model definition
-export interface OrderItem {
-  item_id: string;
-  item_name: string;
-  unit_price: number;
-  quantity: number;
-  subtotal: number;
-  size?: string;
-  variant?: string;
-  notes?: string;
-}
 @Component({
   selector: 'app-view-orders',
-  imports: [CommonModule, TableModule,ToolbarModule,ButtonModule,CalendarModule,DropdownModule,TagModule,InputNumberModule,DialogModule,FormsModule,TabViewModule],
+  imports: [CommonModule, TableModule,ToolbarModule,ButtonModule,CalendarModule,DropdownModule,TagModule,InputNumberModule,DialogModule,FormsModule,TabViewModule,InputTextModule,RadioButtonModule],
   templateUrl: './view-orders.component.html',
-  styleUrl: './view-orders.component.css'
+  styleUrl: './view-orders.component.css',
+   providers: [MessageService],
 })
 export class ViewOrdersComponent implements OnInit {
 
   todayOrders: Order[] = [];
   allOrders: Order[] = [];
+  orderDialog: boolean = false;
+  orders!: Order[];
+  order!: Order;
   
+  error: string | null = null;
+  loading: boolean = false;
+
   selectedOrder: Order | null = null;
   orderDetailsVisible: boolean = false;
+
+  displayPaymentDialog = false;
+  selectedOrderForPayment: any = null;
+  paymentMethod: 'CASH' | 'CARD' | 'ONLINE' = 'CASH';
+  cashAmount = 0;
+  changeAmount = 0;
+
+  searchTerm: string = '';
+  selectedStatus: string | null = null;
+  filteredOrders: Order[] = [];
   
   
   orderStatusOptions: SelectItem[] = [
     { label: 'All', value: null },
-    { label: 'Pending', value: 'PENDING' },
+    { label: 'Placed', value: 'PLACED' },
+    { label: 'Confirmed', value: 'CONFIRMED' },
     { label: 'Preparing', value: 'PREPARING' },
     { label: 'Ready', value: 'READY' },
     { label: 'Delivered', value: 'DELIVERED' },
@@ -73,29 +68,23 @@ export class ViewOrdersComponent implements OnInit {
     { label: 'Cancelled', value: 'CANCELLED' }
   ];
   
-  constructor(private orderService: OrderService) {}
+  constructor(private orderService: OrderService,private cd: ChangeDetectorRef, private messageService: MessageService) {}
 
   ngOnInit(): void {
     this.loadOrders();
   }
 
   loadOrders(): void {
-    // Get today's orders
-    // this.orderService.getAllOrders().subscribe(
-    //   (orders) => {
-    //     this.allOrders = orders;
-        
-    //     // Filter for today's orders
-    //     const today = new Date();
-    //     today.setHours(0, 0, 0, 0);
-        
-    //     this.todayOrders = orders.filter(order => {
-    //       const orderDate = new Date(order.created_at);
-    //       return orderDate >= today;
-    //     });
-    //   },
-    //   (error) => console.error('Error loading orders:', error)
-    // );
+   this.orderService.getAllOrders().subscribe({
+      next: (data) => {
+        this.orders = data;
+        this.filteredOrders = [...data];
+        this.cd.markForCheck();
+      },
+      error: (error) => {
+        console.error('Failed to load orders:', error);
+      },
+    });
   }
 
   getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
@@ -114,31 +103,89 @@ export class ViewOrdersComponent implements OnInit {
   
   viewOrderDetails(order: Order): void {
     this.selectedOrder = {...order};
+    this.orderService.getOrderById(order.id!).subscribe({
+      next: (data) => {
+        this.selectedOrder = data;  
+        this.cd.markForCheck();
+      }
+      , error: (error) => { 
+        console.error('Failed to load order details:', error);
+      }
+    });
     this.orderDetailsVisible = true;
   }
   
-  processPaymentForOrder(order: Order): void {
-    // Navigate to POS with order loaded for payment
+    openPaymentDialog(order: any) {
+    this.selectedOrderForPayment = order;
+    this.paymentMethod = 'CASH';
+    this.cashAmount = order.totalAmount 
+    this.calculateChange();
+    this.displayPaymentDialog = true;
+  }
+
+   calculateChange() {
+    if (this.selectedOrderForPayment) {
+      // const totalWithTax = this.selectedOrderForPayment.totalAmount 
+      this.changeAmount = this.cashAmount - this.selectedOrderForPayment.totalAmount;
+    }
+  }
+
+
+  closePaymentDialog() {
+    this.displayPaymentDialog = false;
+    this.selectedOrderForPayment = null;
+  }
+
+   confirmPayment() {
+    
+       const paymentDetails = {
+        orderId: this.selectedOrderForPayment.id,
+        customerId: this.selectedOrderForPayment.customerId,
+        amount: this.selectedOrderForPayment.totalAmount,
+        paymentMethod: this.paymentMethod,
+        cashReceived: this.cashAmount,
+        change: this.changeAmount,
+        isOnline: false
+      };
+  
+       this.orderService.processInPersonPayment(this.selectedOrderForPayment.id, paymentDetails).pipe(
+      catchError(err => {
+        this.error = err.message || `Failed to process ${this.paymentMethod} payment.`;
+        this.loading = false;
+        return throwError(() => err);
+      })
+    ).subscribe(() => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Payment Processed',
+        detail: `Payment of Rs. ${(this.selectedOrderForPayment.totalAmount).toFixed(2)} completed successfully`
+      });
+      this.closePaymentDialog();
+      this.refreshOrders();
+    });
+    }
+    
+      refreshOrders(): void {
+    this.loadOrders();
   }
   
-  updateOrderStatus(): void {
-    if (!this.selectedOrder) return;
-    
-    // this.orderService.updateOrderStatus(this.selectedOrder.id, this.selectedOrder.status).subscribe(
-    //   (updatedOrder) => {
-    //     // Update the order in the lists
-    //     const todayIndex = this.todayOrders.findIndex(o => o.id === updatedOrder.id);
-    //     if (todayIndex > -1) {
-    //       this.todayOrders[todayIndex] = updatedOrder;
-    //     }
-        
-    //     const allIndex = this.allOrders.findIndex(o => o.id === updatedOrder.id);
-    //     if (allIndex > -1) {
-    //       this.allOrders[allIndex] = updatedOrder;
-    //     }
-    //   },
-    //   (error) => console.error('Error updating order status:', error)
-    // );
+  filterOrders(): void {
+    this.filteredOrders = this.orders.filter(order => {
+      const matchesSearch = !this.searchTerm || 
+        order.id?.toString().includes(this.searchTerm) ||
+        order.customerName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        order.id?.toString().toLowerCase().includes(this.searchTerm.toLowerCase());
+      
+      const matchesStatus = !this.selectedStatus || order.orderStatus === this.selectedStatus;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = null;
+    this.filteredOrders = [...this.orders];
   }
 
 }
