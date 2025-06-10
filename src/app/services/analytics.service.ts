@@ -44,7 +44,7 @@ export interface SummaryData {
 })
 export class AnalyticsService {
 
-   private baseUrl = 'http://localhost:8080/api/analytics'; // Adjust port as needed
+   private baseUrl = 'http://localhost:8080/api/analytics'; 
 
   constructor(private http: HttpClient) {}
 
