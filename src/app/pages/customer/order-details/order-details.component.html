@@ -66,8 +66,8 @@
             <td>{{ item.menuItemName }}</td>
             <td>{{ item.menuItemName || 'N/A' }}</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ item.subTotal| currency }}</td>
-            <td>{{ item.quantity * item.subTotal | currency }}</td>
+            <td>{{ item.subTotal| currency:'LKR' }}</td>
+            <td>{{ item.quantity * item.subTotal | currency:'LKR' }}</td>
           </tr>
         </tbody>
         <tfoot>
@@ -85,7 +85,7 @@
           </tr> -->
           <tr class="total-row">
             <td colspan="4" class="total-label">Total</td>
-            <td class="total-amount">{{ order.totalAmount | currency }}</td>
+            <td class="total-amount">{{ order.totalAmount | currency:'LKR' }}</td>
           </tr>
         </tfoot>
       </table>
@@ -95,13 +95,13 @@
       <h4>Special Instructions</h4>
       <p>{{ order.specialInstructions }}</p>
     </div>
-
+<!-- 
     <div class="order-actions" *ngIf="order.paymentStatus === 'PENDING' && order.paymentLink">
       <a [href]="order.paymentLink" target="_blank" class="btn-pay">Pay Now</a>
     </div>
 
     <div class="order-actions" *ngIf="order.orderStatus === 'COMPLETED'">
       <button class="btn-reorder" [routerLink]="['/reorder', order.id]">Reorder</button>
-    </div>
+    </div> -->
   </div>
 </div>

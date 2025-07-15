@@ -1,4 +1,4 @@
-<div class="chart-container">
+<!-- <div class="chart-container">
   <div *ngIf="loading" class="loading-spinner">
     <p>Loading category sales data...</p>
   </div>
@@ -9,4 +9,98 @@
   </div>
   
   <div *ngIf="!loading && !error" [chart]="chart"></div>
+</div> -->
+
+
+<div class="chart-container">
+  <!-- Filter Controls -->
+  <div class="filter-section">
+    <h3>Filter Sales Data</h3>
+    
+    <div class="filter-controls">
+      <!-- Filter Type Selection -->
+      <div class="filter-group">
+        <label for="filterType">Filter By:</label>
+        <select 
+          id="filterType" 
+          [(ngModel)]="filterType" 
+          (change)="onFilterTypeChange()"
+          class="form-select">
+          <option value="all">All Time</option>
+          <option value="year">Year</option>
+          <option value="month">Month</option>
+          <option value="custom">Custom Date Range</option>
+        </select>
+      </div>
+
+      <!-- Year Selection (shown for year, month, quarter filters) -->
+      <div class="filter-group" *ngIf="filterType === 'year' || filterType === 'month' || filterType === 'quarter'">
+        <label for="yearSelect">Year:</label>
+        <select 
+          id="yearSelect" 
+          [(ngModel)]="selectedYear" 
+          (change)="onYearChange()"
+          class="form-select">
+          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+
+      <!-- Month Selection -->
+      <div class="filter-group" *ngIf="filterType === 'month'">
+        <label for="monthSelect">Month:</label>
+        <select 
+          id="monthSelect" 
+          [(ngModel)]="selectedMonth" 
+          (change)="onMonthChange()"
+          class="form-select">
+          <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
+        </select>
+      </div>
+
+      <!-- Custom Date Range -->
+      <div class="filter-group date-range" *ngIf="filterType === 'custom'">
+        <div class="date-input">
+          <label for="startDate">From:</label>
+          <input 
+            type="date" 
+            id="startDate" 
+            [(ngModel)]="startDate" 
+            (change)="onDateRangeChange()"
+            class="form-input">
+        </div>
+        <div class="date-input">
+          <label for="endDate">To:</label>
+          <input 
+            type="date" 
+            id="endDate" 
+            [(ngModel)]="endDate" 
+            (change)="onDateRangeChange()"
+            class="form-input">
+        </div>
+      </div>
+
+      <!-- Refresh Button -->
+      <div class="filter-group">
+        <button (click)="loadCategoryData()" class="refresh-btn" [disabled]="loading">
+          <span *ngIf="!loading">🔄 Refresh</span>
+          <span *ngIf="loading">Loading...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Section -->
+  <div class="chart-section">
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading category sales data...</p>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      <p>{{ error }}</p>
+      <button (click)="loadCategoryData()" class="retry-btn">Retry</button>
+    </div>
+    
+    <div *ngIf="!loading && !error" [chart]="chart"></div>
+  </div>
 </div>

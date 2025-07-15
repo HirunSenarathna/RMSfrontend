@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { PaymentService } from '../../../services/payment.service';
 import { OrderService } from '../../../services/order.service';
 import { SelectItem } from 'primeng/api';
-import { Payment } from '../../../domain/payment';
+import { Payment } from '../../../domain/pos/Payment';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -15,106 +15,52 @@ import { TagModule } from 'primeng/tag';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
+import { MultiSelectModule } from 'primeng/multiselect';
 
-export interface Order {
-  id: string;
-  items: OrderItem[];
-  total_amount: number;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELED';
-  customer_id: string | null;
-  created_at: Date;
-  updated_at: Date;
-  subtotal: number;
-  tax: number;
-  total: number;
-  isPaid: boolean;
-  paymentMethod: string;
-  isOnline: boolean;
-  createdAt: Date;
-}
-
-// Order Item model definition
-export interface OrderItem {
-  item_id: string;
-  item_name: string;
-  unit_price: number;
-  quantity: number;
-  subtotal: number;
-  size?: string;
-  variant?: string;
-  notes?: string;
-}
-
+import { MessageService } from 'primeng/api';
+import { catchError, throwError } from 'rxjs';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-view-payments',
-  imports: [CommonModule, TableModule,ToolbarModule,ButtonModule,CalendarModule,DropdownModule,TagModule,InputNumberModule,DialogModule,FormsModule],
+  imports: [CommonModule, TableModule,ToolbarModule,ButtonModule,CalendarModule,DropdownModule,TagModule,InputNumberModule,DialogModule,FormsModule, ToastModule,MultiSelectModule],
   templateUrl: './view-payments.component.html',
-  styleUrl: './view-payments.component.css'
+  styleUrl: './view-payments.component.css',
+  providers: [MessageService]
 })
 export class ViewPaymentsComponent implements OnInit {
 
-  // Payment tracking
   payments: Payment[] = [];
-  fromDate: Date | null = null;
-  toDate: Date | null = null;
-  selectedPaymentMethod: string | null = null;
-  selectedPaymentStatus: string | null = null;
+  filteredPayments: Payment[] = [];
+  loading: boolean = false;
   
-  // Summary statistics
-  todayTotal: number = 0;
-  todayCount: number = 0;
-  todayCash: number = 0;
-  todayCashCount: number = 0;
-  todayCard: number = 0;
-  todayCardCount: number = 0;
-  todayOnline: number = 0;
-  todayOnlineCount: number = 0;
-  
-  // Filter options
-  paymentMethodOptions: SelectItem[] = [
-    { label: 'All', value: null },
-    { label: 'Cash', value: 'CASH' },
-    { label: 'Card', value: 'CARD' },
-    { label: 'Online', value: 'ONLINE' }
-  ];
-  
-  paymentStatusOptions: SelectItem[] = [
-    { label: 'All', value: null },
+  // Filter properties
+  statusOptions = [
     { label: 'Pending', value: 'PENDING' },
     { label: 'Completed', value: 'COMPLETED' },
     { label: 'Failed', value: 'FAILED' },
-    { label: 'Refunded', value: 'REFUNDED' }
+    { label: 'Refunded', value: 'REFUNDED' },
+    { label: 'Cancelled', value: 'CANCELLED' }
   ];
   
-  // Current order data
-  currentOrder: Order = {
-    id: '',
-    items: [],
-    total_amount: 0,
-    status: 'PENDING',
-    customer_id: null,
-    created_at: new Date(),
-    updated_at: new Date(),
-    subtotal: 0,
-    tax: 0,
-    total: 0,
-    isPaid: false,
-    paymentMethod: '',
-    isOnline: false,
-    createdAt: new Date()
-  };
+  methodOptions = [
+    { label: 'Credit Card', value: 'CREDIT_CARD' },
+    { label: 'Debit Card', value: 'DEBIT_CARD' },
+    { label: 'Cash', value: 'CASH' },
+    { label: 'Bank Transfer', value: 'BANK_TRANSFER' }
+  ];
   
-  // Payment dialog properties
-  paymentDialog: boolean = false;
-  paymentMethod: string = 'CASH';
-  cashAmount: number = 0;
-  changeAmount: number = 0;
-  
+  dateRange: Date[] | undefined;
+  selectedStatuses: string[] = [];
+  selectedMethods: string[] = [];
+  orderIdFilter: string = '';
+  paymentIdFilter: string = '';
+  amountFrom: number | null = null;
+  amountTo: number | null = null;
+
   constructor(
     private paymentService: PaymentService,
-    private orderService: OrderService,
-    private router: Router
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -122,191 +68,123 @@ export class ViewPaymentsComponent implements OnInit {
   }
 
   loadPayments(): void {
-    this.paymentService.getAllPayments().subscribe(
-      (payments) => {
-        this.payments = payments;
-        this.calculateTodayStats();
+    this.loading = true;
+    this.paymentService.getAllPayments().subscribe({
+      next: (response) => {
+        this.processPayments(response);
+        this.applyFilters();
+        this.loading = false;
       },
-      (error) => console.error('Error loading payments:', error)
-    );
-  }
-
-  calculateTodayStats(): void {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const todayPayments = this.payments.filter(payment => {
-      const paymentDate = new Date(payment.created_at);
-      return paymentDate >= today;
+      error: (err) => {
+        console.error('Error loading payments:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load payments'
+        });
+        this.loading = false;
+      }
     });
+  }
+
+  processPayments(data: any): void {
+    if (Array.isArray(data)) {
+      this.payments = data;
+    } else if (data?.content && Array.isArray(data.content)) {
+      this.payments = data.content;
+    } else {
+      console.error('Unexpected data format:', data);
+      this.payments = [];
+    }
+  }
+
+  applyFilters(): void {
+    this.filteredPayments = [...this.payments];
     
-    this.todayCount = todayPayments.length;
-    this.todayTotal = todayPayments.reduce((sum, payment) => sum + payment.amount, 0);
-    
-    this.todayCashCount = todayPayments.filter(p => p.payment_method === 'CASH').length;
-    this.todayCash = todayPayments
-      .filter(p => p.payment_method === 'CASH')
-      .reduce((sum, payment) => sum + payment.amount, 0);
-      
-    this.todayCardCount = todayPayments.filter(p => p.payment_method === 'CARD').length;
-    this.todayCard = todayPayments
-      .filter(p => p.payment_method === 'CARD')
-      .reduce((sum, payment) => sum + payment.amount, 0);
-      
-    this.todayOnlineCount = todayPayments.filter(p => p.payment_method === 'ONLINE').length;
-    this.todayOnline = todayPayments
-      .filter(p => p.payment_method === 'ONLINE')
-      .reduce((sum, payment) => sum + payment.amount, 0);
-  }
-
-  getPaymentStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
-    if (status === 'COMPLETED') return 'success';
-    if (status === 'PENDING') return 'warn';
-    if (status === 'FAILED') return 'danger';
-    if (status === 'REFUNDED') return 'info';
-    return 'secondary';
-  }
-
-  getCashierName(cashierId: string): string {
-    // In a real app, you would fetch this from a user service
-    return `Cashier ${cashierId.substring(0, 4)}`;
-  }
-
-  viewOrder(orderId: string): void {
-    this.router.navigate(['/orders', orderId]);
-  }
-
-  processRefund(payment: Payment): void {
-    if (confirm(`Are you sure you want to refund Rs. ${payment.amount.toFixed(2)} for payment ${payment.id}?`)) {
-      this.paymentService.processRefund(payment.id.toString()).subscribe(
-        (refundedPayment) => {
-          // Update the payment in the list
-          const index = this.payments.findIndex(p => p.id === refundedPayment.id);
-          if (index > -1) {
-            this.payments[index] = refundedPayment;
-          }
-          this.calculateTodayStats();
-        },
-        (error) => console.error('Error processing refund:', error)
+    // Apply status filter
+    if (this.selectedStatuses.length > 0) {
+      this.filteredPayments = this.filteredPayments.filter(payment => 
+        this.selectedStatuses.includes(payment.status)
       );
     }
+    
+    // Apply method filter
+    if (this.selectedMethods.length > 0) {
+      this.filteredPayments = this.filteredPayments.filter(payment => 
+        this.selectedMethods.includes(payment.method)
+      );
+    }
+    
+    // Apply order ID filter
+    if (this.orderIdFilter) {
+      this.filteredPayments = this.filteredPayments.filter(payment => 
+        payment.orderId.toString().includes(this.orderIdFilter)
+      );
+    }
+    
+    // // Apply payment ID filter
+    // if (this.paymentIdFilter) {
+    //   this.filteredPayments = this.filteredPayments.filter(payment => 
+    //     payment.id.toString().includes(this.paymentIdFilter)
+    //   );
+    // }
+    
+    // Apply amount range filter
+    if (this.amountFrom !== null) {
+      this.filteredPayments = this.filteredPayments.filter(payment => 
+        payment.amount >= this.amountFrom!
+      );
+    }
+    
+    if (this.amountTo !== null) {
+      this.filteredPayments = this.filteredPayments.filter(payment => 
+        payment.amount <= this.amountTo!
+      );
+    }
+    
+    // Apply date range filter
+    if (this.dateRange && this.dateRange.length === 2) {
+      const startDate = new Date(this.dateRange[0]).setHours(0, 0, 0, 0);
+      const endDate = new Date(this.dateRange[1]).setHours(23, 59, 59, 999);
+      
+      this.filteredPayments = this.filteredPayments.filter(payment => {
+        const paymentDate = new Date(payment.createdAt).getTime();
+        return paymentDate >= startDate && paymentDate <= endDate;
+      });
+    }
   }
 
-  refreshPayments(): void {
-    this.loadPayments();
+  resetFilters(): void {
+    this.dateRange = undefined;
+    this.selectedStatuses = [];
+    this.selectedMethods = [];
+    this.orderIdFilter = '';
+    this.paymentIdFilter = '';
+    this.amountFrom = null;
+    this.amountTo = null;
+    this.applyFilters();
   }
-  
-  // Filter functionality
-  applyFilters(): void {
-    this.paymentService.getFilteredPayments(
-      this.fromDate, 
-      this.toDate, 
-      this.selectedPaymentMethod, 
-      this.selectedPaymentStatus
-    ).subscribe(
-      (filteredPayments) => {
-        this.payments = filteredPayments;
-      },
-      (error) => console.error('Error filtering payments:', error)
-    );
+
+    getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
+  switch (status) {
+    case 'COMPLETED': return 'success';
+    case 'PENDING': return 'warn';  
+    case 'FAILED': return 'danger';
+    case 'REFUNDED': return 'info';
+    case 'CANCELLED': return 'secondary';
+    default: return undefined;
   }
+}
+
   
-  // POS order functionality
-  updateItemQuantity(index: number, quantity: number): void {
-    if (quantity <= 0) {
-      this.removeItem(index);
-      return;
+  getMethodIcon(method: string): string {
+    switch (method) {
+      case 'CREDIT_CARD': return 'pi pi-credit-card';
+      case 'DEBIT_CARD': return 'pi pi-credit-card';
+      case 'CASH': return 'pi pi-money-bill';
+      case 'BANK_TRANSFER': return 'pi pi-building';
+      default: return 'pi pi-question-circle';
     }
-    
-    const item = this.currentOrder.items[index];
-    item.quantity = quantity;
-    item.subtotal = item.unit_price * quantity;
-    this.recalculateOrderTotal();
-  }
-  
-  removeItem(index: number): void {
-    this.currentOrder.items.splice(index, 1);
-    this.recalculateOrderTotal();
-  }
-  
-  recalculateOrderTotal(): void {
-    this.currentOrder.total_amount = this.currentOrder.items.reduce(
-      (sum: number, item: OrderItem) => sum + item.subtotal, 0
-    );
-  }
-  
-  cancelOrder(): void {
-    if (this.currentOrder.items.length === 0 || 
-        confirm('Are you sure you want to cancel the current order?')) {
-      this.resetOrder();
-    }
-  }
-  
-  resetOrder(): void {
-    this.currentOrder = {
-      id: '',
-      items: [],
-      total_amount: 0,
-      status: 'PENDING',
-      customer_id: null,
-      created_at: new Date(),
-      updated_at: new Date(),
-      subtotal: 0,
-      tax: 0,
-      total: 0,
-      isPaid: false,
-      paymentMethod: '',
-      isOnline: false,
-      createdAt: new Date()
-    };
-  }
-  
-  // Payment processing
-  openPaymentDialog(): void {
-    if (this.currentOrder.items.length === 0) {
-      alert('Cannot process payment for an empty order.');
-      return;
-    }
-    
-    this.paymentMethod = 'CASH';
-    this.cashAmount = 0;
-    this.changeAmount = -this.currentOrder.total_amount;
-    this.paymentDialog = true;
-  }
-  
-  calculateChange(): void {
-    this.changeAmount = this.cashAmount - this.currentOrder.total_amount;
-  }
-  
-  processPayment(): void {
-    if (this.paymentMethod === 'CASH' && this.changeAmount < 0) {
-      alert('Insufficient cash amount.');
-      return;
-    }
-    
-    // First create the order
-    // this.orderService.createOrder(this.currentOrder).subscribe(
-    //   (order) => {
-    //     // Then create the payment
-    //     const payment = {
-    //       order_id: order.id,
-    //       amount: this.currentOrder.total_amount,
-    //       payment_method: this.paymentMethod,
-    //       payment_status: 'COMPLETED',
-    //       cashier_id: localStorage.getItem('currentCashierId') || 'unknown'
-    //     };
-        
-    //     this.paymentService.createPayment(payment).subscribe(
-    //       (newPayment) => {
-    //         this.paymentDialog = false;
-    //         this.resetOrder();
-    //         this.loadPayments(); // Refresh the payments list
-    //       },
-    //       (error) => console.error('Error creating payment:', error)
-    //     );
-    //   },
-    //   (error) => console.error('Error creating order:', error)
-    // );
   }
 
 }

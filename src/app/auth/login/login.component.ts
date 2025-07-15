@@ -164,13 +164,13 @@ export class LoginComponent {
     });
   }
 
-  loginWithGoogle() {
-    // Implement Google Authentication logic here
-    console.log("Google Sign-In Clicked");
-    this.snackBar.open('Google login is not implemented yet', 'Close', {
-      duration: 3000
-    });
-  }
+  // loginWithGoogle() {
+  //   // Implement Google Authentication logic here
+  //   console.log("Google Sign-In Clicked");
+  //   this.snackBar.open('Google login is not implemented yet', 'Close', {
+  //     duration: 3000
+  //   });
+  // }
 
   forgotPassword() {
     // Implement forgot password logic (navigate to reset page)

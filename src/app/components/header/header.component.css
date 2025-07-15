@@ -159,10 +159,10 @@ a:hover {
     display: flex;
     flex-direction: column;
     position: absolute;
-    top: 50px; /* Positioned just below the header */
+    top: 50px; 
     left: 0;
     width: 250px; /* Set a fixed width for the menu */
-    height: auto; /* Don't take the full height */
+    height: auto;
     background: rgba(0, 0, 0, 0.9); /* Semi-transparent black background */
     padding: 15px;
     border-radius: 5px;

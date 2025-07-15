@@ -5,9 +5,9 @@
     <!-- Toolbar -->
     <p-toolbar styleClass="mb-4">
         <ng-template pTemplate="start">
-            <button pButton label="New" icon="pi pi-plus" class="mr-2" (click)="openNew()"></button>
-            <button pButton label="Delete" icon="pi pi-trash" severity="danger" [disabled]="!selectedMenuItems || selectedMenuItems.length === 0" 
-                    (click)="deleteSelectedMenuItems()"></button>
+            <!-- <button pButton label="New" icon="pi pi-plus" class="mr-2" (click)="openNew()"></button> -->
+            <!-- <button pButton label="Delete" icon="pi pi-trash" severity="danger" [disabled]="!selectedMenuItems || selectedMenuItems.length === 0" 
+                    (click)="deleteSelectedMenuItems()"></button> -->
         </ng-template>
 
         <ng-template pTemplate="end">
@@ -59,8 +59,8 @@
                 <td (click)="$event.stopPropagation()">
                     <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text mr-2" 
                             (click)="editMenuItem(menuItem)"></button>
-                    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
-                            (click)="deleteMenuItem(menuItem)"></button>
+                    <!-- <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
+                            (click)="deleteMenuItem(menuItem)"></button> -->
                 </td>
             </tr>
         </ng-template>
@@ -194,8 +194,8 @@
                             <td>
                                 <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text mr-2" 
                                         (click)="openVariantDialog(variant)"></button>
-                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
-                                        (click)="deleteVariant(variant)"></button>
+                                <!-- <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
+                                        (click)="deleteVariant(variant)"></button> -->
                             </td>
                         </tr>
                     </ng-template>

@@ -48,9 +48,8 @@ export class LargeOrdersComponent implements OnInit {
   amountFilter: number | null = null;
   itemsFilter: number | null = null;
 
-  // filteredOrders is already declared above, removing this duplicate declaration
-  orders: any[] = []; // Assuming orders is the original array of orders
-
+  
+  orders: any[] = []; 
   constructor(
     private orderService: OrderService,
     private datePipe: DatePipe,

@@ -47,14 +47,8 @@ export class MenuItemsComponent {
     }
     return this.item.variants.filter((variant: any) => variant.stockQuantity > 0 && variant.available);
   }
-
-  rate(value: number) {
-    this.item.rating = value;
-    // You might want to implement a rating service later
-  }
   
   onAddToCart() {
-    // Emit event with item and selected variant
     this.addToCart.emit({
       item: this.item,
       variant: this.selectedVariant || this.item.variants?.[0]

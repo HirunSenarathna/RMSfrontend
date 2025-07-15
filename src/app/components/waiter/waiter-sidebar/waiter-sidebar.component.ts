@@ -17,8 +17,8 @@ export class WaiterSidebarComponent {
   logout() {
     this.authService.logout().subscribe({
       next: () => {
-        // Logout success (local logout is already handled in AuthService)
-        this.router.navigate(['/login']); // navigate to login or other page
+        // Logout success 
+        this.router.navigate(['/login']); // navigate to login 
       },
       error: err => {
         console.error('Logout error:', err);

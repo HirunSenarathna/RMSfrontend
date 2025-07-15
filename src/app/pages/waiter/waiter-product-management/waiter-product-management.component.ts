@@ -151,11 +151,11 @@ export class WaiterProductManagementComponent implements OnInit {
      };
    }
  
-   openNew(): void {
-     this.menuItem = this.emptyMenuItem();
-     this.submitted = false;
-     this.menuItemDialog = true;
-   }
+  //  openNew(): void {
+  //    this.menuItem = this.emptyMenuItem();
+  //    this.submitted = false;
+  //    this.menuItemDialog = true;
+  //  }
  
    editMenuItem(menuItem: MenuItem): void {
     // Deep copy to avoid mutating original
@@ -213,45 +213,45 @@ export class WaiterProductManagementComponent implements OnInit {
      return Math.min(...variants.map(v => v.price));
    }
  
-   deleteMenuItem(menuItem: MenuItem): void {
-     this.confirmationService.confirm({
-       message: `Are you sure you want to delete ${menuItem.name}?`,
-       header: 'Confirm',
-       icon: 'pi pi-exclamation-triangle',
-       accept: () => {
-         this.menuItemService.deleteMenuItem(menuItem.id!).subscribe({
-           next: () => {
-             this.menuItems = this.menuItems.filter(val => val.id !== menuItem.id);
-             this.showSuccess('Menu Item Deleted');
-           },
-           error: (err) => {
-             this.showError('Failed to delete menu item');
-           }
-         });
-       }
-     });
-   }
+  //  deleteMenuItem(menuItem: MenuItem): void {
+  //    this.confirmationService.confirm({
+  //      message: `Are you sure you want to delete ${menuItem.name}?`,
+  //      header: 'Confirm',
+  //      icon: 'pi pi-exclamation-triangle',
+  //      accept: () => {
+  //        this.menuItemService.deleteMenuItem(menuItem.id!).subscribe({
+  //          next: () => {
+  //            this.menuItems = this.menuItems.filter(val => val.id !== menuItem.id);
+  //            this.showSuccess('Menu Item Deleted');
+  //          },
+  //          error: (err) => {
+  //            this.showError('Failed to delete menu item');
+  //          }
+  //        });
+  //      }
+  //    });
+  //  }
  
-   deleteSelectedMenuItems(): void {
-     this.confirmationService.confirm({
-       message: 'Are you sure you want to delete the selected menu items?',
-       header: 'Confirm',
-       icon: 'pi pi-exclamation-triangle',
-       accept: () => {
-         const deleteRequests = this.selectedMenuItems.map(item => 
-           this.menuItemService.deleteMenuItem(item.id!)
-         );
+  //  deleteSelectedMenuItems(): void {
+  //    this.confirmationService.confirm({
+  //      message: 'Are you sure you want to delete the selected menu items?',
+  //      header: 'Confirm',
+  //      icon: 'pi pi-exclamation-triangle',
+  //      accept: () => {
+  //        const deleteRequests = this.selectedMenuItems.map(item => 
+  //          this.menuItemService.deleteMenuItem(item.id!)
+  //        );
  
-         Promise.all(deleteRequests).then(() => {
-           this.menuItems = this.menuItems.filter(val => !this.selectedMenuItems.includes(val));
-           this.selectedMenuItems = [];
-           this.showSuccess('Menu Items Deleted');
-         }).catch(err => {
-           this.showError('Failed to delete some menu items');
-         });
-       }
-     });
-   }
+  //        Promise.all(deleteRequests).then(() => {
+  //          this.menuItems = this.menuItems.filter(val => !this.selectedMenuItems.includes(val));
+  //          this.selectedMenuItems = [];
+  //          this.showSuccess('Menu Items Deleted');
+  //        }).catch(err => {
+  //          this.showError('Failed to delete some menu items');
+  //        });
+  //      }
+  //    });
+  //  }
  
    // Variant management
    openVariantDialog(variant?: MenuItemVariant): void {

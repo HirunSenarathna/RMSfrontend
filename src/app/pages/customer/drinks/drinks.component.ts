@@ -51,8 +51,7 @@ export class DrinksComponent {
       
       this.cartService.addToCart(cartItem);
       
-      // You would normally update the variant's stock quantity here via API call
-      // Simulating stock reduction for now
+      // Update stock quantity in the menu item
       if (variant.stockQuantity > 0) {
         variant.stockQuantity--;
       }
@@ -80,7 +79,7 @@ export class DrinksComponent {
         price: smallestVariant?.price || 0,
         oldPrice: onSale ? largestVariant?.price : null,
         image: item.imageUrl,
-        rating: 4, // Default rating since API doesn't provide this
+        // rating: 4, 
         sale: onSale,
         available: item.available,
         variants: item.variants
