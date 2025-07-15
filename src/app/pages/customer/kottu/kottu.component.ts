@@ -52,7 +52,7 @@ export class KottuComponent {
     
     this.cartService.addToCart(cartItem);
     
-    //todo:api call to update stock
+    
     // stock reduction 
     if (variant.stockQuantity > 0) {
       variant.stockQuantity--;
@@ -81,7 +81,7 @@ export class KottuComponent {
       price: smallestVariant?.price || 0,
       oldPrice: onSale ? largestVariant?.price : null,
       image: item.imageUrl,
-      rating: 4, // Default rating since API doesn't provide this
+      // rating: 4, 
       sale: onSale,
       available: item.available,
       variants: item.variants

@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { MenuItem } from '../domain/menu-item';
 import { MenuItemVariant } from '../domain/menu-item-variant';
 import { MenuCategory } from '../domain/menu-category';
+import { HttpHeaders } from '@angular/common/http';
+import { AuthService } from './auth.service'; 
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,18 @@ export class MenuItemService {
 
   private apiUrl = 'http://localhost:8081/api/menu';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private authService: AuthService) { }
+
+   private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('No authentication token available');
+    }
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
 
   // Menu Item operations
   getMenuItems(): Observable<MenuItem[]> {
@@ -28,15 +41,26 @@ export class MenuItemService {
   }
 
   createMenuItem(menuItem: any): Observable<MenuItem> {
-    return this.http.post<MenuItem>(`${this.apiUrl}/items`, menuItem);
+    return this.http.post<MenuItem>(
+      `${this.apiUrl}/items`,
+      menuItem,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   updateMenuItem(id: number, menuItem: any): Observable<MenuItem> {
-    return this.http.put<MenuItem>(`${this.apiUrl}/items/${id}`, menuItem);
+    return this.http.put<MenuItem>(
+      `${this.apiUrl}/items/${id}`,
+      menuItem,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   deleteMenuItem(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/items/${id}`);
+    return this.http.delete<void>(
+      `${this.apiUrl}/items/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   updateMenuItemAvailability(id: number, available: boolean): Observable<MenuItem> {
@@ -97,30 +121,4 @@ export class MenuItemService {
   }
   
 
-  // private apiUrl = 'http://localhost:8081/api/menu/items'; 
-
-  // constructor(private http: HttpClient) { }
-
-  // getMenuItems(): Observable<MenuItem[]> {
-  //   return this.http.get<MenuItem[]>(this.apiUrl);
-  // }
-
-  // getMenuItem(id: number): Observable<MenuItem> {
-  //   return this.http.get<MenuItem>(`${this.apiUrl}/${id}`);
-  // }
-
-  // createMenuItem(formData: FormData): Observable<MenuItem> {
-  //   console.log('Creating menu item with formData:', formData); // Debugging line
-  //   console.log('FormData keys:', Array.from(formData.keys())); // Debugging line
-  //   console.log('FormData values:', Array.from(formData.values())); // Debugging line
-  //   return this.http.post<MenuItem>(this.apiUrl, formData);
-  // }
-
-  // updateMenuItem(id: number, formData: FormData): Observable<MenuItem> {
-  //   return this.http.put<MenuItem>(`${this.apiUrl}/${id}`, formData);
-  // }
-
-  // deleteMenuItem(id: number): Observable<void> {
-  //   return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  // }
 }

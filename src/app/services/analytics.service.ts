@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { HttpParams } from '@angular/common/http';
 
 
 export interface CategorySalesDto {
@@ -10,10 +11,15 @@ export interface CategorySalesDto {
   revenue: number;
 }
 
+export interface FilterOption {
+  value: string;
+  label: string;
+}
+
 export interface MonthlySalesDto {
-  month: string;
-  categoryName: string;
-  revenue: number;
+   month: string;
+  categories: Record<string, number>; 
+  total: number; 
 }
 
 export interface TopProductDto {
@@ -82,5 +88,39 @@ export class AnalyticsService {
 
   getTotalRevenue(): Observable<number> {
     return this.http.get<number>(`${this.baseUrl}/total-revenue`);
+  }
+
+  //
+  getSalesByCategoryFiltered(filterType: string, filterValue: string): Observable<CategorySalesDto[]> {
+    const params = new HttpParams()
+      .set('filterType', filterType)
+      .set('filterValue', filterValue);
+    
+    return this.http.get<CategorySalesDto[]>(`${this.baseUrl}/sales-by-category/filtered`, { params });
+  }
+
+  getSalesByCategoryByYear(year: string): Observable<CategorySalesDto[]> {
+    return this.http.get<CategorySalesDto[]>(`${this.baseUrl}/sales-by-category/year/${year}`);
+  }
+
+  getSalesByCategoryByMonth(yearMonth: string): Observable<CategorySalesDto[]> {
+    return this.http.get<CategorySalesDto[]>(`${this.baseUrl}/sales-by-category/month/${yearMonth}`);
+  }
+
+  getAvailableYears(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.baseUrl}/available-years`);
+  }
+
+  // Helper methods for generating filter options
+  getMonthOptions(year: number): FilterOption[] {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    return months.map((month, index) => ({
+      value: `${year}-${(index + 1).toString().padStart(2, '0')}`,
+      label: `${month} ${year}`
+    }));
   }
 }

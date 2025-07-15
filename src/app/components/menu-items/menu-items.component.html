@@ -4,10 +4,6 @@
   <h3>{{ item.name }}</h3>
   <p class="description">{{ item.description }}</p>
   
-  <!-- Price display -->
-  <!-- <p>
-    <span class="price">{{ selectedVariant?.price || item.price | currency }}</span>
-  </p> -->
 
   <!-- Variant selector if multiple variants are available -->
   <mat-form-field *ngIf="getAvailableVariants().length > 0" appearance="outline" class="variant-selector">

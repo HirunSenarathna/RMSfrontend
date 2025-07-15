@@ -27,7 +27,7 @@ export class TopWidgetComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadSummaryData();
     
-    // Optional: Auto-refresh every 30 seconds
+    //Auto-refresh every 30 seconds
     this.subscription.add(
       interval(30000)
         .pipe(switchMap(() => this.analyticsService.getSummaryData()))

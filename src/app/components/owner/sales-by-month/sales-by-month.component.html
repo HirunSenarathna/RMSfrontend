@@ -1,12 +1,62 @@
-<div class="chart-container">
-  <div *ngIf="loading" class="loading-spinner">
-    <p>Loading monthly sales data...</p>
+<div class="monthly-sales-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="page-title">Monthly Sales</h1>
   </div>
-  
-  <div *ngIf="error" class="error-message">
-    <p>{{ error }}</p>
-    <button (click)="loadMonthlyData()" class="retry-btn">Retry</button>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Loading monthly sales data...</p>
   </div>
-  
-  <div *ngIf="!loading && !error" [chart]="chart"></div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p class="error-message">{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadMonthlyData()" class="retry-button">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="main-content">
+    
+    <!-- Chart Controls -->
+    <div class="chart-controls">
+      <div class="chart-type-buttons">
+        <button 
+          mat-stroked-button 
+          [color]="chartType === 'area' ? 'primary' : ''" 
+          (click)="changeChartType('area')"
+          class="chart-btn">
+          <mat-icon>show_chart</mat-icon>
+          Area
+        </button>
+        <button 
+          mat-stroked-button 
+          [color]="chartType === 'line' ? 'primary' : ''" 
+          (click)="changeChartType('line')"
+          class="chart-btn">
+          <mat-icon>timeline</mat-icon>
+          Line
+        </button>
+        <button 
+          mat-stroked-button 
+          [color]="chartType === 'column' ? 'primary' : ''" 
+          (click)="changeChartType('column')"
+          class="chart-btn">
+          <mat-icon>bar_chart</mat-icon>
+          Column
+        </button>
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="chart-section">
+      <div [chart]="chart" class="chart-container"></div>
+    </div>
+
+  </div>
 </div>

@@ -57,10 +57,10 @@ export class OrderConfirmationComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  trackOrder(): void {
-    // In a real app, this would navigate to an order tracking page
-    alert(`Tracking order ${this.orderId}`);
-    // this.router.navigate(['/track-order', this.orderId]);
-  }
+  // trackOrder(): void {
+    
+  //   alert(`Tracking order ${this.orderId}`);
+  //   // this.router.navigate(['/track-order', this.orderId]);
+  // }
 
 }

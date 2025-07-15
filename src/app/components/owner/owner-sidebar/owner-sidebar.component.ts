@@ -17,18 +17,6 @@ export class OwnerSidebarComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  // logout() {
-  //   this.authService.logout().subscribe({
-  //     next: () => {
-  //       alert('You have been logged out');
-  //       this.router.navigate(['/']); // Redirect to homepage or login
-  //     },
-  //     error: (err) => {
-  //       console.error('Logout failed', err);
-  //       alert('Logout failed');
-  //     }
-  //   });
-  // }
 
    logout() {
     this.authService.logout().subscribe(() => {

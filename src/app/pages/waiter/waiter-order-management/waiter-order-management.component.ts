@@ -53,7 +53,7 @@ export class WaiterOrderManagementComponent implements OnInit {
 
   orderDialog: boolean = false;
   orders: Order[] = [];
-  selectedOrder: Order | null = null; // <-- Fix: allow null for no selection
+  selectedOrder: Order | null = null; 
   statuses!: any[];
   submitted: boolean = false;
   cols!: Column[];
@@ -186,7 +186,7 @@ export class WaiterOrderManagementComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        // Delete locally (replace with actual service call in production)
+        // Delete locally 
         this.orders = this.orders.filter((o) => o.id !== order.id);
         this.messageService.add({
           severity: 'success',

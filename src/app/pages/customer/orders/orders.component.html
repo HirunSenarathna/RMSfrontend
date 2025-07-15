@@ -69,13 +69,13 @@
           </td>
           <td class="actions-cell">
             <a [routerLink]="['/orderDetails', order.id]" class="btn-details">Details</a>
-            <a *ngIf="order.paymentStatus === 'PENDING' && order.paymentLink" 
+            <!-- <a *ngIf="order.paymentStatus === 'PENDING' && order.paymentLink" 
                [href]="order.paymentLink" 
                target="_blank" 
-               class="btn-pay">Pay Now</a>
-            <button *ngIf="order.paymentStatus === 'COMPLETED'" 
+               class="btn-pay">Pay Now</a> -->
+            <!-- <button *ngIf="order.paymentStatus === 'COMPLETED'" 
                     [routerLink]="['/reorder', order.id]" 
-                    class="btn-reorder">Reorder</button>
+                    class="btn-reorder">Reorder</button> -->
           </td>
         </tr>
       </tbody>
